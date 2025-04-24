@@ -28,6 +28,7 @@ export const corsOptions = {
 export const envProvider = {
     PORT: process.env.PORT,
     DB_URI: process.env.DBURI,
+    NodeEnvironment:process.env.NODE_ENV
 }
 
 

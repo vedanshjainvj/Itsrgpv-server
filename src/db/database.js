@@ -17,8 +17,9 @@ mongoose.connection.on('disconnected', () => {
 
 const connectDB = async() => {
    try {
+     const dbname = envProvider.NodeEnvironment == "production" ? "its-rgpv" : "its-rgpv-testing"
       const db = await mongoose.connect(envProvider.DB_URI, {
-        dbName:"its-rgpv"
+        dbName:dbname
       })
       return db
    } catch (error) {
