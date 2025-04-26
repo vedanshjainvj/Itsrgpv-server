@@ -1,77 +1,126 @@
-import pyqModel from "../models/pyq.model.js";
+import pyqServices from "../services/pyq.services.js";
 import APIError from "../utils/APIError.js";
 import ResponseHandler from "../utils/APIResponse.js";
 import statusCodeUtility from "../utils/statusCodeUtility.js";
 
 class PyqController {
 
-    async getPyqs(request, response, next) {
-        const Pyqs = await pyqModel.find({});
-        if (!Pyqs) {
-            return new APIError(statusCodeUtility.NotFound, "No Pyqs found");
+    static async getPyqs(request, response, next) {
+        try {
+            const page = parseInt(request.query.page) || 1;
+            const limit = parseInt(request.query.limit) || 10;
+            
+            const Pyqs = await pyqServices.getAllPyqs(page, limit);
+            if (!Pyqs) {
+                return next(new APIError(statusCodeUtility.NotFound, "No Pyqs found"));
+            }
+            return ResponseHandler(statusCodeUtility.Success, "Pyqs found", Pyqs, response);
+        } catch (error) {
+            next(error);
         }
-        return ResponseHandler(statusCodeUtility.Success, "Pyqs found", Pyqs, response);
     }
 
-    async getPyqById(request, response, next) {
-        const Pyq = await pyqModel.findById(request.params.id);
-        if (!Pyq) {
-            return new APIError(statusCodeUtility.NotFound, "Pyq not found");
+    static async getPyqById(request, response, next) {
+        try {
+            if (!request.params || !request.params.id) {
+                return next(new APIError(statusCodeUtility.BadRequest, "PYQ ID is required"));
+            }
+            const id = request.params.id;
+            const Pyq = await pyqServices.findPyqById(id);
+            if (!Pyq) {
+                return next(new APIError(statusCodeUtility.NotFound, "Pyq not found"));
+            }
+            return ResponseHandler(statusCodeUtility.Success, "Pyq found", Pyq, response);
+        } catch (error) {
+            next(error);
         }
-        return ResponseHandler(statusCodeUtility.Success, "Pyq found", Pyq, response);
     }
 
-    async addPyq(request, response, next) {
-        if (!request.body) {
-            return new APIError(statusCodeUtility.BadRequest, "No data provided");
+    static async addPyq(request, response, next) {
+        try {
+            if (!request.body) {
+                return next(new APIError(statusCodeUtility.BadRequest, "No data provided"));
+            }
+            
+            const { subjectName, paperPublishYear, semester, paperType, 
+                   paperForYear, department, questionPaperImg, College } = request.body;
+            
+            if (!subjectName || !paperPublishYear || !semester || !paperType || 
+                !paperForYear || !department || !College) {
+                return next(new APIError(statusCodeUtility.BadRequest, "Missing required fields"));
+            }
+            
+            const data = {
+                subjectName,
+                paperPublishYear,
+                semester,
+                paperType,
+                paperForYear,
+                department,
+                questionPaperImg,
+                College
+            };
+            
+            const newPyq = await pyqServices.createPyq(data);
+            if (!newPyq) {
+                return next(new APIError(statusCodeUtility.InternalServerError, "Pyq not added"));
+            }
+            return ResponseHandler(statusCodeUtility.Created, "Pyq added", newPyq, response);
+        } catch (error) {
+            next(error);
         }
-        const { subjectName, paperPublishYear, semester, paperType, paperForYear, department, questionPaperImg, College } = request.body;
-        const newPyq = await pyqModel.create({
-            subjectName,
-            paperPublishYear,
-            semester,
-            paperType,
-            paperForYear,
-            department,
-            questionPaperImg,
-            College
-        });
-
-        if (!newPyq) {
-            return new APIError(statusCodeUtility.InternalServerError, "Pyq not added");
-        }
-        return ResponseHandler(statusCodeUtility.Created, "Pyq added", newPyq, response);
     }
 
-    async editPyq(request, response, next) {
-        if (!request.body) {
-            return new APIError(statusCodeUtility.BadRequest, "No data provided");
+    static async editPyq(request, response, next) {
+        try {
+            if (!request.body) {
+                return next(new APIError(statusCodeUtility.BadRequest, "No data provided"));
+            }
+            
+            const { id } = request.params;
+            if (!id) {
+                return next(new APIError(statusCodeUtility.BadRequest, "PYQ ID is required"));
+            }
+            
+            const validFields = ["subjectName", "paperPublishYear", "semester", "paperType", 
+                               "paperForYear", "department", "questionPaperImg", "College"];
+                               
+            const updateData = Object.keys(request.body).reduce((acc, key) => {
+                if (validFields.includes(key)) acc[key] = request.body[key];
+                return acc;
+            }, {});
+            
+            if (Object.keys(updateData).length === 0) {
+                return next(new APIError(statusCodeUtility.BadRequest, "No valid fields to update"));
+            }
+            
+            const updatedPyq = await pyqServices.editPyq(id, updateData);
+            
+            if (!updatedPyq) {
+                return next(new APIError(statusCodeUtility.NotFound, "Pyq not found"));
+            }
+            
+            return ResponseHandler(statusCodeUtility.Success, "Pyq updated", updatedPyq, response);
+        } catch (error) {
+            next(error);
         }
-        const { subjectName, paperPublishYear, semester, paperType, paperForYear, department, questionPaperImg, College } = request.body;
-        const updatedPyq = await pyqModel.findByIdAndUpdate(request.params.id, {
-            subjectName,
-            paperPublishYear,
-            semester,
-            paperType,
-            paperForYear,
-            department,
-            questionPaperImg,
-            College
-        });
-
-        if (!updatedPyq) {
-            return new APIError(statusCodeUtility.InternalServerError, "Pyq not updated");
-        }
-        return ResponseHandler(statusCodeUtility.Success, "Pyq updated", updatedPyq, response);
     }
 
-    async deletePyq(request, response, next) {
-        const Pyq = await pyqModel.findByIdAndDelete(request.params.id);
-        if (!Pyq) {
-            return new APIError(statusCodeUtility.NotFound, "Pyq not found");
+    static async deletePyq(request, response, next) {
+        try {
+            const { id } = request.params;
+            if (!id) {
+                return next(new APIError(statusCodeUtility.BadRequest, "PYQ ID is required"));
+            }
+            const deletedPyq = await pyqServices.deletePyq(id);
+            if (!deletedPyq) {
+                return next(new APIError(statusCodeUtility.NotFound, "Pyq not found"));
+            }
+            return ResponseHandler(statusCodeUtility.Success, "Pyq deleted", deletedPyq, response);
+        } catch (error) {
+            next(error);
         }
-        return ResponseHandler(statusCodeUtility.Success, "Pyq deleted", Pyq, response);
     }
-
 }
-export default new PyqController();
+
+export default PyqController;

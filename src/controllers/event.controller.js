@@ -1,81 +1,127 @@
-import eventModel from "../models/event.model.js";
+import eventServices from "../services/event.services.js";
 import APIError from "../utils/APIError.js";
 import ResponseHandler from "../utils/APIResponse.js";
 import statusCodeUtility from "../utils/statusCodeUtility.js";
 
 class EventController {
-    async getEvents(request, response, next) {
-        const Events = await eventModel.find({});
-        if (!Events) {
-            return new APIError(statusCodeUtility.NotFound, "No Events found");
+
+    static async getEvents(request, response, next) {
+        try {
+            const page = parseInt(request.query.page) || 1;
+            const limit = parseInt(request.query.limit) || 10;
+            
+            const Events = await eventServices.getAllEvents(page, limit);
+            if (!Events) {
+                return next(new APIError(statusCodeUtility.NotFound, "No Events found"));
+            }
+            return ResponseHandler(statusCodeUtility.Success, "Events found", Events, response);
+        } catch (error) {
+            next(error);
         }
-        return ResponseHandler(statusCodeUtility.Success, "Event found", Events, response);
     }
 
-    async getEventById(request, response, next) {
-        const { id } = request.params;
-        const Event = await eventModel.findById(id);
-        if (!Event) {
-            return new APIError(statusCodeUtility.NotFound, "Event not found");
+    static async getEventById(request, response, next) {
+        try {
+            if (!request.params) {
+                return next(new APIError(statusCodeUtility.NotFound, "No Events found"));
+            }
+            const { id } = request.params;
+            const Event = await eventServices.findEventById(id);
+            if (!Event) {
+                return next(new APIError(statusCodeUtility.NotFound, "Event not found"));
+            }
+            return ResponseHandler(statusCodeUtility.Success, "Event found", Event, response);
+        } catch (error) {
+            next(error);
         }
-        return ResponseHandler(statusCodeUtility.Success, "Event found", Event, response);
     }
 
-    async addEvent(request, response, next) {
-        if (!request.body) {
-            return new APIError(statusCodeUtility.BadRequest, "No data provided");
+    static async addEvent(request, response, next) {
+        try {
+            if (!request.body) {
+                return next(new APIError(statusCodeUtility.BadRequest, "No data provided"));
+            }
+            
+            const { eventName, description, organisedBy, venue, dateOfEvent, 
+                   bannerPicture, eventImages, eventType, targetAudience, tags } = request.body;
+            
+            if (!eventName || !description || !organisedBy || !venue || !dateOfEvent) {
+                return next(new APIError(statusCodeUtility.BadRequest, "Missing required fields"));
+            }
+            
+            const data = {
+                eventName,
+                description,
+                organisedBy,
+                venue,
+                dateOfEvent,
+                bannerPicture,
+                eventImages,
+                eventType,
+                targetAudience,
+                tags
+            };
+            
+            const newEvent = await eventServices.createEvent(data);
+            if (!newEvent) {
+                return next(new APIError(statusCodeUtility.InternalServerError, "Event not added"));
+            }
+            return ResponseHandler(statusCodeUtility.Created, "Event added", newEvent, response);
+        } catch (error) {
+            next(error);
         }
-        const { eventName, description, organisedBy, venue, dateOfEvent, bannerPicture, eventImages, eventType, targetAudience, tags } = request.body;
-        const newEvent = await eventModel.create({
-            eventName,
-            description,
-            organisedBy,
-            venue,
-            dateOfEvent,
-            bannerPicture,
-            eventImages,
-            eventType,
-            targetAudience,
-            tags
-        });
-        if (!newEvent) {
-            return new APIError(statusCodeUtility.InternalServerError, "Event not added");
-        }
-        return ResponseHandler(statusCodeUtility.Created, "Event added", newEvent, response);
     }
 
-    async editEvent(request, response, next) {
-        const { id } = request.params;
-        const { eventName, description, organisedBy, venue, dateOfEvent, bannerPicture, eventImages, eventType, targetAudience, tags } = request.body;
-        const updatedEvent = await eventModel.findByIdAndUpdate(id, {
-            eventName,
-            description,
-            organisedBy,
-            venue,
-            dateOfEvent,
-            bannerPicture,
-            eventImages,
-            eventType,
-            targetAudience,
-            tags
-        }, { new: true });
-        if (!updatedEvent) {
-            return new APIError(statusCodeUtility.NotFound, "Event not found");
+    static async editEvent(request, response, next) {
+        try {
+            if (!request.body) {
+                return next(new APIError(statusCodeUtility.BadRequest, "No data provided"));
+            }
+            
+            const { id } = request.params;
+            if (!id) {
+                return next(new APIError(statusCodeUtility.BadRequest, "Event ID is required"));
+            }
+            
+            const validFields = ["eventName", "description", "organisedBy", "venue", "dateOfEvent",
+                                "bannerPicture", "eventImages", "eventType", "targetAudience", "tags"];
+                               
+            const updateData = Object.keys(request.body).reduce((acc, key) => {
+                if (validFields.includes(key)) acc[key] = request.body[key];
+                return acc;
+            }, {});
+            
+            if (Object.keys(updateData).length === 0) {
+                return next(new APIError(statusCodeUtility.BadRequest, "No valid fields to update"));
+            }
+            
+            const updatedEvent = await eventServices.editEvent(id, updateData);
+            
+            if (!updatedEvent) {
+                return next(new APIError(statusCodeUtility.NotFound, "Event not found"));
+            }
+            
+            return ResponseHandler(statusCodeUtility.Success, "Event updated", updatedEvent, response);
+        } catch (error) {
+            next(error);
         }
-        return ResponseHandler(statusCodeUtility.Success, "Event updated", updatedEvent, response);
     }
 
-    async deleteEvent(request, response, next) {
-        const { id } = request.params;
-        const deletedEvent = await eventModel.findByIdAndDelete(id);
-        if (!deletedEvent) {
-            return new APIError(statusCodeUtility.NotFound, "Event not found");
+    static async deleteEvent(request, response, next) {
+        try {
+            const { id } = request.params;
+            if (!id) {
+                return next(new APIError(statusCodeUtility.BadRequest, "Event ID is required"));
+            }
+            const deletedEvent = await eventServices.deleteEvent(id);
+            if (!deletedEvent) {
+                return next(new APIError(statusCodeUtility.NotFound, "Event not found"));
+            }
+            return ResponseHandler(statusCodeUtility.Success, "Event deleted", deletedEvent, response);
+        } catch (error) {
+            next(error);
         }
-        return ResponseHandler(statusCodeUtility.Success, "Event deleted", deletedEvent, response);
     }
-    
-
-
-
 }
-export default new EventController();
+
+export default EventController;

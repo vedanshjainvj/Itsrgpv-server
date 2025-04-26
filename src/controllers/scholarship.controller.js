@@ -1,78 +1,132 @@
-import scholarshipModel from '../models/scholarship.model.js';
-import APIError from '../utils/APIError.js';
-import ResponseHandler from '../utils/APIResponse.js';
-import statusCodeUtility from '../utils/statusCodeUtility.js';
+import scholarshipServices from "../services/scholarship.services.js";
+import APIError from "../utils/APIError.js";
+import ResponseHandler from "../utils/APIResponse.js";
+import statusCodeUtility from "../utils/statusCodeUtility.js";
 
-class ScholarshipModel {
+class ScholarshipController {
 
     async getScholarships(request, response, next) {
-        const Scholarships = await scholarshipModel.find({});
-        if (!Scholarships) {
-            return new APIError(statusCodeUtility.NotFound, "No Scholarships found");
+        try {
+            const page = parseInt(request.query.page) || 1;
+            const limit = parseInt(request.query.limit) || 10;
+            
+            const Scholarships = await scholarshipServices.getAllScholarships(page, limit);
+            if (!Scholarships) {
+                return next(new APIError(statusCodeUtility.NotFound, "No Scholarships found"));
+            }
+            return ResponseHandler(statusCodeUtility.Success, "Scholarships found", Scholarships, response);
+        } catch (error) {
+            next(error);
         }
-        return ResponseHandler(statusCodeUtility.Success, "Scholarships found", Scholarships, response);
     }
 
     async getScholarshipById(request, response, next) {
-        const Scholarship = await scholarshipModel.findById(request.params.id);
-        if (!Scholarship) {
-            return new APIError(statusCodeUtility.NotFound, "Scholarship not found");
+        try {
+            if (!request.params || !request.params.id) {
+                return next(new APIError(statusCodeUtility.BadRequest, "Scholarship ID is required"));
+            }
+            
+            const id = request.params.id;
+            const Scholarship = await scholarshipServices.findScholarshipById(id);
+            
+            if (!Scholarship) {
+                return next(new APIError(statusCodeUtility.NotFound, "Scholarship not found"));
+            }
+            
+            return ResponseHandler(statusCodeUtility.Success, "Scholarship found", Scholarship, response);
+        } catch (error) {
+            next(error);
         }
-        return ResponseHandler(statusCodeUtility.Success, "Scholarship found", Scholarship, response);
     }
 
     async addScholarship(request, response, next) {
-        if (!request.body) {
-            return new APIError(statusCodeUtility.BadRequest, "No data provided");
+        try {
+            if (!request.body) {
+                return next(new APIError(statusCodeUtility.BadRequest, "No data provided"));
+            }
+            
+            const { organisationName, organisationType, applyUrl, amount, 
+                   eligibilityCriteria, documentRequired, contactInfo } = request.body;
+            
+            if (!organisationName || !organisationType || !applyUrl || !amount) {
+                return next(new APIError(statusCodeUtility.BadRequest, "Missing required fields"));
+            }
+            
+            const data = {
+                organisationName,
+                organisationType,
+                applyUrl,
+                amount,
+                eligibilityCriteria,
+                documentRequired,
+                contactInfo
+            };
+            
+            const newScholarship = await scholarshipServices.createScholarship(data);
+            
+            if (!newScholarship) {
+                return next(new APIError(statusCodeUtility.InternalServerError, "Scholarship not added"));
+            }
+            
+            return ResponseHandler(statusCodeUtility.Created, "Scholarship added", newScholarship, response);
+        } catch (error) {
+            next(error);
         }
-        const { organisationName, organisationType, applyUrl, amount, eligibilityCriteria, documentRequired, contactInfo } = request.body;
-
-        const newScholarship = await scholarshipModel.create({
-            organisationName,
-            organisationType,
-            applyUrl,
-            amount,
-            eligibilityCriteria,
-            documentRequired,
-            contactInfo
-        });
-
-        if (!newScholarship) {
-            return new APIError(statusCodeUtility.InternalServerError, "Scholarship not added");
-        }
-        return ResponseHandler(statusCodeUtility.Created, "Scholarship added", newScholarship, response);
     }
 
     async editScholarship(request, response, next) {
-        if (!request.body) {
-            return new APIError(statusCodeUtility.BadRequest, "No data provided");
+        try {
+            if (!request.body) {
+                return next(new APIError(statusCodeUtility.BadRequest, "No data provided"));
+            }
+            
+            const { id } = request.params;
+            if (!id) {
+                return next(new APIError(statusCodeUtility.BadRequest, "Scholarship ID is required"));
+            }
+            
+            const validFields = ["organisationName", "organisationType", "applyUrl", 
+                               "amount", "eligibilityCriteria", "documentRequired", "contactInfo"];
+                               
+            const updateData = Object.keys(request.body).reduce((acc, key) => {
+                if (validFields.includes(key)) acc[key] = request.body[key];
+                return acc;
+            }, {});
+            
+            if (Object.keys(updateData).length === 0) {
+                return next(new APIError(statusCodeUtility.BadRequest, "No valid fields to update"));
+            }
+            
+            const updatedScholarship = await scholarshipServices.editScholarship(id, updateData);
+            
+            if (!updatedScholarship) {
+                return next(new APIError(statusCodeUtility.NotFound, "Scholarship not found"));
+            }
+            
+            return ResponseHandler(statusCodeUtility.Success, "Scholarship updated", updatedScholarship, response);
+        } catch (error) {
+            next(error);
         }
-        const { organisationName, organisationType, applyUrl, amount, eligibilityCriteria, documentRequired, contactInfo } = request.body;
-        const updatedScholarship = await scholarshipModel.findByIdAndUpdate(request.params.id, {
-            organisationName,
-            organisationType,
-            applyUrl,
-            amount,
-            eligibilityCriteria,
-            documentRequired,
-            contactInfo
-        });
-
-        if (!updatedScholarship) {
-            return new APIError(statusCodeUtility.InternalServerError, "Scholarship not updated");
-        }
-        return ResponseHandler(statusCodeUtility.Success, "Scholarship updated", updatedScholarship, response);
     }
 
     async deleteScholarship(request, response, next) {
-        const deletedScholarship = await scholarshipModel.findByIdAndDelete(request.params.id);
-        if (!deletedScholarship) {
-            return new APIError(statusCodeUtility.NotFound, "Scholarship not found");
+        try {
+            const { id } = request.params;
+            if (!id) {
+                return next(new APIError(statusCodeUtility.BadRequest, "Scholarship ID is required"));
+            }
+            
+            const deletedScholarship = await scholarshipServices.deleteScholarship(id);
+            
+            if (!deletedScholarship) {
+                return next(new APIError(statusCodeUtility.NotFound, "Scholarship not found"));
+            }
+            
+            return ResponseHandler(statusCodeUtility.Success, "Scholarship deleted", deletedScholarship, response);
+        } catch (error) {
+            next(error);
         }
-        return ResponseHandler(statusCodeUtility.Success, "Scholarship deleted", deletedScholarship, response);
     }
-
-
 }
 
-export default new ScholarshipModel();
+export default new ScholarshipController();

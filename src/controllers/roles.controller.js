@@ -1,65 +1,86 @@
-import roleModel from "../models/role.model.js"
+import roleServices from "../services/role.services.js";
 import APIError from "../utils/APIError.js";
 import ResponseHandler from "../utils/APIResponse.js";
 import statusCodeUtility from "../utils/statusCodeUtility.js";
 
-
-
 class RoleController {
 
     async addRole(request, response, next) {
-        if (!request.body) {
-            return new APIError(statusCodeUtility.NotFound, "No body will not fount");
+        try {
+            if (!request.body) {
+                return next(new APIError(statusCodeUtility.NotFound, "No body will not fount"));
+            }
+            
+            const {data} = request.body;
+            const decodedData = JSON.parse(Buffer.from(data, "base64").toString("utf-8"));
+            
+            if(decodedData.secretKey != process.env.SecretPin){
+                return next(new APIError(statusCodeUtility.Conflict, "Enter correct pin"));
+            }
+            
+            const date = new Date();
+            const roleData = {roleName: decodedData.roleName, createdDate: date};
+            
+            const newRole = await roleServices.createRole(roleData);
+            
+            return ResponseHandler(statusCodeUtility.Success, "Role added", newRole, response);
+        } catch (error) {
+            next(error);
         }
-        const {data} = request.body;
-        const decodedData = JSON.parse(Buffer.from(data, "base64").toString("utf-8"));
-        if(decodedData.secretKey != process.env.SecretPin){
-            return new APIError(statusCodeUtility.Conflict, "Enter correct pin");
-        }
-        const date = new Date();
-         await roleModel.create({roleName:decodedData.roleName,createdDate:date})
-        return ResponseHandler(statusCodeUtility.Success, "BOOK found", null, response);
     }
 
     async getAllRole(request, response, next) {
-        if (!request.params) {
-            return new APIError(statusCodeUtility.NotFound, "No Book found");
+        try {
+            const page = parseInt(request.query.page) || 1;
+            const limit = parseInt(request.query.limit) || 10;
+            
+            const roles = await roleServices.getAllRoles(page, limit);
+            
+            if (!roles) {
+                return next(new APIError(statusCodeUtility.NotFound, "No roles found"));
+            }
+            
+            return ResponseHandler(statusCodeUtility.Success, "Roles found", roles, response);
+        } catch (error) {
+            next(error);
         }
-        const Book = await bookModel.findById({ _id: request.params._id });
-        return ResponseHandler(statusCodeUtility.Success, "Book found", Book, response);
     }
 
     async editRole(request, response, next) {
-        if (!request.body) {
-            return new APIError(statusCodeUtility.BadRequest, "NO data Provided");
-        }
+        try {
+            if (!request.body) {
+                return next(new APIError(statusCodeUtility.BadRequest, "NO data Provided"));
+            }
 
-        const { id } = request.params;
-        const { author, description, department, semester, tags, thumbnailPicture, bookUrl, availability, publicationYear } = request.body;
-        const editedBook = await bookModel.findByIdAndUpdate({ _id: id }, {
-            author,
-            description,
-            department,
-            semester,
-            tags,
-            thumbnailPicture,
-            bookUrl,
-            availability,
-            publicationYear
-        }, { new: true });
-        if (!editedBook) {
-            return new APIError(statusCodeUtility.InternalServerError, "Book not edited");
+            const { id } = request.params;
+            const { roleName } = request.body;
+            
+            const editedRole = await roleServices.editRole(id, { roleName });
+            
+            if (!editedRole) {
+                return next(new APIError(statusCodeUtility.InternalServerError, "Role not edited"));
+            }
+            
+            return ResponseHandler(statusCodeUtility.Success, "Role edited", editedRole, response);
+        } catch (error) {
+            next(error);
         }
-        return ResponseHandler(statusCodeUtility.Success, "Book edited", editedBook, response);
     }
 
     async deleteRole(request, response, next) {
-        const { id } = request.params;
-        const deletedBook = await bookModel.findByIdAndDelete({ _id: id });
-        if (!deletedBook) {
-            return new APIError(statusCodeUtility.NotFound, "Book not found");
+        try {
+            const { id } = request.params;
+            
+            const deletedRole = await roleServices.deleteRole(id);
+            
+            if (!deletedRole) {
+                return next(new APIError(statusCodeUtility.NotFound, "Role not found"));
+            }
+            
+            return ResponseHandler(statusCodeUtility.Success, "Role deleted", deletedRole, response);
+        } catch (error) {
+            next(error);
         }
-        return ResponseHandler(statusCodeUtility.Success, "Book deleted", deletedBook, response);
     }
 }
 
