@@ -16,10 +16,6 @@ const achievementSchema = new Schema({
         required: true,
         unique: true
     },
-    // Year: {
-    //     type: Number,
-    //     required: true,
-    // },
     achievementDate: {
         type: Date,
         required: true
@@ -34,10 +30,6 @@ const achievementSchema = new Schema({
         type: String,
         required: true,
     },
-    // department: {
-    //     type: String,
-    //     required: true,
-    // },
     achievementTitle: {
         type: String,
         required: true

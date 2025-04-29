@@ -8,6 +8,7 @@ class AchievementsController {
  //add Achievement
  static async addAchievement(request, response, next) {
     try {
+      
       if (!request.body) return next(new APIError(statusCodeUtility.BadRequest, "No data provided"));
       const { firstName, lastName, email, Year, achievementDate, branch, fieldOfAchievement,
         enrollmentNumber, department, achievementTitle, semester, achievementDescription,

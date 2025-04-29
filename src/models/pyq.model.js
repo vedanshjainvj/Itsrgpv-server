@@ -12,7 +12,6 @@ const pyqSchema = new Schema({
         required: true,
 
     },
-
     semester:{
          type: String,
          required: true
