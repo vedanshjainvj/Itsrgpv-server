@@ -33,7 +33,6 @@ const departmentSchema = new Schema({
     },
     departmentImages: [{
         type: String,
-        
     }],
     contactPhone: {
         type: Number,

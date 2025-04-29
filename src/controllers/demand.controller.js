@@ -42,7 +42,7 @@ class DemandController {
                 return next(new APIError(statusCodeUtility.BadRequest, "No data provided"));
             }
             const { firstName, lastName, email, year, topicOfFeedback, 
-                    supportAttachment, rating, demandTitle, description } = request.body;
+                    supportAttachment, rating, demandTitle, description,progessCount } = request.body;
             
             if (!firstName || !lastName || !email || !year || !topicOfFeedback || !description) {
                 return next(new APIError(statusCodeUtility.BadRequest, "Missing required fields"));
@@ -57,7 +57,8 @@ class DemandController {
                 supportAttachment,
                 rating,
                 demandTitle,
-                description
+                description,
+                progessCount
             };
 
             const newDemand = await demandServices.createDemand(data);

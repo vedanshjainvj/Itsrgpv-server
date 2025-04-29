@@ -32,10 +32,8 @@ const demandSchema = new Schema({
     },
     rating: {
         type: String,
-        enum:["1", "2", "3", "4", "5"]
-        
+        enum:["1", "2", "3", "4", "5"]  
     },
- 
     demandTitle:{
         type:String
     },
@@ -43,8 +41,27 @@ const demandSchema = new Schema({
     description: {
         type: String,
         required: true,
-    }
-    
+    },
+    progessCount : {
+        type: Number,
+        required: true,
+        min: 1,
+        max: 100,
+        default:1
+    },
+    demandStatus:{
+        type: String,
+        enum:["approved", "denied", "pending", "unclear"],
+        required:true,
+        default:"pending"
+    },
+    demandSubmitted:{
+        type: String,
+    },
+    administrationResponse:{
+        type: String,
+    },
+    demandUpdates:[{type:String}]
 }, {timestamps:true})
 
 const demandModel = mongoose.model("Demand", demandSchema)
