@@ -25,7 +25,6 @@ const clubSchema = new mongoose.Schema({
     },
     dateOfeshtablishment: {
         type: Date,
-        
     },
 
     contactEmail:{
@@ -41,11 +40,9 @@ const clubSchema = new mongoose.Schema({
     }],
     socialLinks:[ {
         type: String,
-        
     }],
     logoCoverImg:{
         type: String,
-         
     }
     
 }, {timestamps:true})

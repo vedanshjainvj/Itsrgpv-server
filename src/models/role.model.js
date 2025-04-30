@@ -2,18 +2,18 @@ import mongoose, {Schema} from "mongoose";
 
 const roleSchema = new Schema({
     roleName:{
-        type:String,
+        type: String,
         required: true,
-        minLength: 3   ,
-        unique:true
+        minLength: 3,
+        unique: true
     },  
-    createdDate :{
-        type:Date,
+    createdDate: {
+        type: Date,
         required: true,
-        unique:true
+        default: Date.now
     }  
-}, )
+}, {timestamps: true});
 
-const pyqModel = mongoose.model("roleModels", roleSchema)
+const roleModel = mongoose.model("Role", roleSchema);
 
-export default pyqModel
+export default roleModel;
