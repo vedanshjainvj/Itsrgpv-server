@@ -7,33 +7,39 @@ class AchievementsController {
 
  //add Achievement
  static async addAchievement(request, response, next) {
+
     try {
       
       if (!request.body) return next(new APIError(statusCodeUtility.BadRequest, "No data provided"));
-      const { firstName, lastName, email, Year, achievementDate, branch, fieldOfAchievement,
+      const { firstName, lastName, email, achievementDate, branch, fieldOfAchievement,
         enrollmentNumber, department, achievementTitle, semester, achievementDescription,
         recognitionLevel, awards, photos, socialMediaLinks } = request.body;
-
-      if (!firstName || !lastName || !email || !Year || !achievementDate || !enrollmentNumber ||
-        !department || !achievementTitle || !semester) {
+        
+      if (!firstName || !lastName || !email  || !enrollmentNumber ||
+        !department || !achievementTitle || !semester || !achievementDate) {
         return next(new APIError(statusCodeUtility.BadRequest, "Missing required fields"));
       }
+
+      let photoUrl = null;
+        if (request.file) {
+            photoUrl = request.file.path;
+        }
+
       const data = {
         firstName,
         lastName,
         email,
-        Year,
         achievementDate,
         branch,
         fieldOfAchievement,
         enrollmentNumber,
         department,
         achievementTitle,
-        semester,
+        semester : Number(semester),
         achievementDescription,
         recognitionLevel,
         awards,
-        photos,
+        photos : photoUrl,
         socialMediaLinks
       }
       const newAchievement = await achievementsServices.createAchievement(data);
@@ -93,10 +99,11 @@ class AchievementsController {
   //delete achievement
  static async deleteAchievement(request, response, next) {
   const { id } = request.params;
+  console.log(id)
   if (!id) throw new APIError(statusCodeUtility.BadRequest, "Achievement ID is required");
     const deleteData = await achievementsServices.deleteAchievement(id);
     if (!deleteData) throw new APIError(statusCodeUtility.NotFound, "Achievement have not delete...");
-    return ResponseHandler(statusCodeUtility.Success, "Achievement deleted", Achievement, response);
+    return ResponseHandler(statusCodeUtility.Success, "Achievement deleted", null, response);
   }
 }
 

@@ -9,7 +9,7 @@ class HostelController {
         try {
             const page = parseInt(request.query.page) || 1;
             const limit = parseInt(request.query.limit) || 10;
-            
+
             const Hostels = await hostelServices.getAllHostels(page, limit);
             if (!Hostels) {
                 return next(new APIError(statusCodeUtility.NotFound, "No Hostels found"));
@@ -41,31 +41,40 @@ class HostelController {
             if (!request.body) {
                 return next(new APIError(statusCodeUtility.BadRequest, "No data provided"));
             }
-            
-            const { hostelName, hostelMessCharges, hostelWardenName, totalStudentsInHostel, 
-                    hostelPictures, hostelEvents, HostelFacilities, hostelRating, 
-                    hostelWardenContactNumber, roomsInHostel, messRating, hostelFeesPerSemester } = request.body;
-            
-            if (!hostelName || !hostelMessCharges || !hostelWardenName || 
-                !totalStudentsInHostel || !hostelWardenContactNumber || !roomsInHostel) {
+
+            const { hostelName, hostelMessCharges, hostelWardenName, totalStudentsInHostel,
+                hostelPictures, hostelEvents, HostelFacilities, hostelRating,
+                hostelWardenContactNumber, roomsInHostel, messRating, hostelFeesPerSemester } = request.body;
+
+
+
+            if (!hostelName || !hostelMessCharges || !hostelWardenName ||
+                !totalStudentsInHostel || !hostelWardenContactNumber) {
                 return next(new APIError(statusCodeUtility.BadRequest, "Missing required fields"));
             }
-            
+
+            const contactNumbers = Array.isArray(hostelWardenContactNumber)
+                ? request.body.hostelWardenContactNumber
+                : request.body.hostelWardenContactNumber.split(',').map((num) => num.trim());
+
+            const images = request.files.map((file) => file.path);
+            console.log("Uploaded Images:", images);
+
             const data = {
                 hostelName,
                 hostelMessCharges,
                 hostelWardenName,
                 totalStudentsInHostel,
-                hostelPictures,
+                hostelPictures: images,
                 hostelEvents,
                 HostelFacilities,
                 hostelRating,
-                hostelWardenContactNumber,
+                hostelWardenContactNumber: contactNumbers,
                 roomsInHostel,
                 messRating,
                 hostelFeesPerSemester
             };
-            
+
             const newHostel = await hostelServices.createHostel(data);
             if (!newHostel) {
                 return next(new APIError(statusCodeUtility.InternalServerError, "Hostel not added"));
@@ -81,32 +90,32 @@ class HostelController {
             if (!request.body) {
                 return next(new APIError(statusCodeUtility.BadRequest, "No data provided"));
             }
-            
+
             const { id } = request.params;
             if (!id) {
                 return next(new APIError(statusCodeUtility.BadRequest, "Hostel ID is required"));
             }
-            
-            const validFields = ["hostelName", "hostelMessCharges", "hostelWardenName", 
-                                "totalStudentsInHostel", "hostelPictures", "hostelEvents", 
-                                "HostelFacilities", "hostelRating", "hostelWardenContactNumber", 
-                                "roomsInHostel", "messRating", "hostelFeesPerSemester"];
-                               
+
+            const validFields = ["hostelName", "hostelMessCharges", "hostelWardenName",
+                "totalStudentsInHostel", "hostelPictures", "hostelEvents",
+                "HostelFacilities", "hostelRating", "hostelWardenContactNumber",
+                "roomsInHostel", "messRating", "hostelFeesPerSemester"];
+
             const updateData = Object.keys(request.body).reduce((acc, key) => {
                 if (validFields.includes(key)) acc[key] = request.body[key];
                 return acc;
             }, {});
-            
+
             if (Object.keys(updateData).length === 0) {
                 return next(new APIError(statusCodeUtility.BadRequest, "No valid fields to update"));
             }
-            
+
             const updatedHostel = await hostelServices.editHostel(id, updateData);
-            
+
             if (!updatedHostel) {
                 return next(new APIError(statusCodeUtility.NotFound, "Hostel not found"));
             }
-            
+
             return ResponseHandler(statusCodeUtility.Success, "Hostel updated", updatedHostel, response);
         } catch (error) {
             next(error);

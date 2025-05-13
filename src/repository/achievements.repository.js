@@ -32,7 +32,8 @@ class AchievementRepository{
 
      //delete achievement
     static  async delete(id) {
-         const deleteAchievement = await achievementModel.findByIdAndDelete(request.params.id);
+      console.log(id, "this")
+         const deleteAchievement = await achievementModel.findByIdAndDelete(id);
            return deleteAchievement;
      }
 

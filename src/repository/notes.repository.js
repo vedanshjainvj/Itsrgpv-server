@@ -1,11 +1,11 @@
-import topperModel from "../models/notes.model.js";
+import notesModel from "../models/notes.model.js";
 
 class NotesRepository {
     
     // Create notes
     static async create(data) {
-        // Using topperModel since that's what your schema exports
-        const newNotes = await topperModel.create(data);
+        // Using notesModel since that's what your schema exports
+        const newNotes = await notesModel.create(data);
         return newNotes;
     }
     
@@ -18,13 +18,13 @@ class NotesRepository {
 
     // Get single notes
     static async getById(id) {
-        const getNotes = await topperModel.findById(id);
+        const getNotes = await notesModel.findById(id);
         return getNotes;
     }
 
     // Update notes
     static async edit(id, updateData) {
-        const updatedNotes = await topperModel.findByIdAndUpdate(
+        const updatedNotes = await notesModel.findByIdAndUpdate(
             id,
             { $set: updateData },
             { new: true, runValidators: true }
@@ -34,7 +34,7 @@ class NotesRepository {
 
     // Delete notes
     static async delete(id) {
-        const deleteNotes = await topperModel.findByIdAndDelete(id);
+        const deleteNotes = await notesModel.findByIdAndDelete(id);
         return deleteNotes;
     }
 }

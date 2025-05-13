@@ -42,24 +42,44 @@ class NotesController {
             }
             
             const { subjectName, branch, subjectCode, contactNumber, 
-                    thumbnailPicture, year, department, semester } = request.body;
+                    year, department, semester, nameOfPerson, 
+                    batchOfPerson, description, hashtags, pagesNumber, fileSize } = request.body;
             
             if (!subjectName || !branch || !subjectCode || !contactNumber || 
-                !department || !semester) {
+                !department || !semester || !nameOfPerson || !batchOfPerson) {
                 return next(new APIError(statusCodeUtility.BadRequest, "Missing required fields"));
             }
-            
+    
+            let thumbnailPictureUrl = null;
+            let notesFileUrl = null;
+
+            // ✅ Handling uploaded files
+            if (request.files?.thumbnailPicture) {
+                thumbnailPictureUrl = request.files.thumbnailPicture[0].path;
+            }
+            if (request.files?.notesFile) {
+                notesFileUrl = request.files.notesFile[0].path;
+            }
+    
             const data = {
                 subjectName,
                 branch,
                 subjectCode,
                 contactNumber,
-                thumbnailPicture,
-                year,
+                thumbnailPicture : thumbnailPictureUrl,
+                notesFile : notesFileUrl,           // Storing the notes file URL
+                year : Number(year),
                 department,
-                semester
+                semester : Number(semester),
+                nameOfPerson,
+                batchOfPerson,
+                description,
+                hashtags: hashtags ? hashtags.split(',') : [], // Convert to array
+                pagesNumber: Number(pagesNumber) || 0,
+                fileSize: Number(fileSize) || 0, 
+                uploadedOn: new Date()  // Automatically setting upload date
             };
-            
+    
             const newNotes = await notesServices.createNotes(data);
             if (!newNotes) {
                 return next(new APIError(statusCodeUtility.InternalServerError, "Notes not added"));

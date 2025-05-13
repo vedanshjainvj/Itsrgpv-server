@@ -22,12 +22,10 @@ const placementSchema = new Schema({
         maxLength: 10,
         unique: true
     },
-    
     profilePicture:{
         type:String
 
     },
-    
     skills: [{
         type: String,
         
@@ -48,6 +46,10 @@ const placementSchema = new Schema({
         type: Number,
         required: true
     },
+    salaryPackage: {
+        type: Number,
+        required: true
+    }
     
 }, {timestamps:true})
 

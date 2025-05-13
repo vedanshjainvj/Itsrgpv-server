@@ -42,25 +42,31 @@ class PlacementController {
                 return next(new APIError(statusCodeUtility.BadRequest, "No data provided"));
             }
             
-            const { studentFirstName, studentLastName, email, contactNumber, 
+            const { studentFirstName, studentLastName, email, contactNumber, salaryPackage, 
                     profilePicture, skills, enrollmentNumber, company, passoutYear, semester } = request.body;
             
             if (!studentFirstName || !studentLastName || !email || !contactNumber || 
-                !enrollmentNumber || !passoutYear || !semester) {
+                !enrollmentNumber || !passoutYear || !semester || !salaryPackage) {
                 return next(new APIError(statusCodeUtility.BadRequest, "Missing required fields"));
             }
-            
+
+            let profileUrl = null;
+            if(request.file){
+                profileUrl = request.file.path;
+            }
+        
             const data = {
                 studentFirstName,
                 studentLastName,
                 email,
                 contactNumber,
-                profilePicture,
+                profilePicture : profileUrl,
+                semester : parseInt(semester),
                 skills,
                 enrollmentNumber,
                 company,
                 passoutYear,
-                semester
+                salaryPackage
             };
             
             const newPlacement = await placementServices.createPlacement(data);

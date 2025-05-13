@@ -22,12 +22,12 @@ router.get("/testing", (request, response) => {
     return response.status(200).send("Nested routing is working fine please move forward")
 })
 
-router.use("/achivement", AchivementRouter);
+router.use("/achievement", AchivementRouter);
 router.use("/book", BookRouter);
 router.use("/club", ClubRouter);
 router.use("/demand", DemandRouter);
 router.use("/department", DepartmentRouter);
-router.use("/event", EventRouter);
+router.use("/event", EventRouter);     
 router.use("/fest", FestRouter);
 router.use("/hostel", HostelRouter);
 router.use("/notes", NotesRouter);

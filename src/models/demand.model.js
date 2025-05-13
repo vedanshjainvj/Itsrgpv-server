@@ -1,69 +1,78 @@
-import mongoose, {Schema} from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
 const demandSchema = new Schema({
-    firstName:{
-        type:String,
+    firstName: {
+        type: String,
         required: true,
-        minLength: 3   
+        minLength: 3,
     },
-    lastName:{
-        type:String,
+    lastName: {
+        type: String,
         required: true,
-        minLength: 3
+        minLength: 3,
     },
-    email:{
-        type:String,
+    email: {
+        type: String,
         required: true,
-        unique: true
+        unique: true,
     },
     year: {
         type: Number,
         required: true,
-        minLength: 4
+        minLength: 4,
     },
     topicOfFeedback: {
         type: String,
-        required: true
+        required: true,
     },
-
-    supportAttachment:{
-        type:String
-
-    },
+    supportAttachment: [{
+        type: String,
+    }],
     rating: {
         type: String,
-        enum:["1", "2", "3", "4", "5"]  
+        enum: ["1", "2", "3", "4", "5"],
     },
-    demandTitle:{
-        type:String
+    demandTitle: {
+        type: String,
     },
-
     description: {
         type: String,
         required: true,
     },
-    progessCount : {
+    progressCount: {
         type: Number,
         required: true,
         min: 1,
         max: 100,
-        default:1
+        default: 1,
     },
-    demandStatus:{
+    hashtags: [{
         type: String,
-        enum:["approved", "denied", "pending", "unclear"],
-        required:true,
-        default:"pending"
+    }],
+    demandStatus: {
+        type: String,
+        enum: ["approved", "denied", "pending", "unclear"],
+        required: true,
+        default: "pending",
     },
-    demandSubmitted:{
+    demandRaiseDate: {
+        type: Date,
+        default: Date.now,
+    },
+    demandSubmitted: {
         type: String,
     },
-    administrationResponse:{
+    submittedTo: {
         type: String,
     },
-    demandUpdates:[{type:String}]
-}, {timestamps:true})
+    administrationResponse: {
+        type: String,
+    },
+    demandUpdates: [{
+        type: String,
+    }],
+}, { timestamps: true });
 
-const demandModel = mongoose.model("Demand", demandSchema)
+const demandModel = mongoose.model("Demand", demandSchema);
 
-export default demandModel
+export default demandModel;
