@@ -70,7 +70,7 @@ class FestController {
                 festVideo,
                 listOfActivities
             };
-    
+            
             const newFest = await festServices.createFest(data);
             if (!newFest) {
                 return next(new APIError(statusCodeUtility.InternalServerError, "Fest not added"));
