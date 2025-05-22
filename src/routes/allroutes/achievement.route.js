@@ -13,7 +13,7 @@ router.get('/get-achievements', asyncHandler(achievementsController.getAchieveme
 
 router.get('/get-achievement/:id',asyncHandler(achievementsController.getAchievementById));
 
-router.put('/edit-achievement/:id',asyncHandler(achievementsController.editAchievement));
+router.put('/edit-achievement/:id',upload.single("photos"),asyncHandler(achievementsController.editAchievement));
 
 router.delete('/delete-achievement/:id',asyncHandler(achievementsController.deleteAchievement));
 
