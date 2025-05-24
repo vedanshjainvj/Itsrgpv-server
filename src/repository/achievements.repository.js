@@ -10,7 +10,10 @@ class AchievementRepository{
      //get all achievement
     static  async getAll(page,limit) {
         const skip = (page-1)* limit;
-          const getAllAchievement = await achievementModel.find().skip(skip);
+          const getAllAchievement = await achievementModel.find()
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
            return getAllAchievement;
      }
 
@@ -32,7 +35,8 @@ class AchievementRepository{
 
      //delete achievement
     static  async delete(id) {
-         const deleteAchievement = await achievementModel.findByIdAndDelete(request.params.id);
+      console.log(id, "this")
+         const deleteAchievement = await achievementModel.findByIdAndDelete(id);
            return deleteAchievement;
      }
 

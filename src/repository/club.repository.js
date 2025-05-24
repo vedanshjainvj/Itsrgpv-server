@@ -11,7 +11,10 @@ class ClubRepository {
     // Get all clubs
     static async getAll(page, limit) {
         const skip = (page - 1) * limit;
-        const getAllClubs = await clubModel.find().skip(skip).limit(limit);
+        const getAllClubs = await clubModel.find()
+       .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
         return getAllClubs;
     }
 

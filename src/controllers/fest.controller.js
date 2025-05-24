@@ -4,7 +4,7 @@ import ResponseHandler from "../utils/APIResponse.js";
 import statusCodeUtility from "../utils/statusCodeUtility.js";
 
 class FestController {
-    static async getFests(request, response, next) {
+    static async getFest(request, response, next) {
         try {
             const page = parseInt(request.query.page) || 1;
             const limit = parseInt(request.query.limit) || 10;
@@ -40,22 +40,31 @@ class FestController {
             if (!request.body) {
                 return next(new APIError(statusCodeUtility.BadRequest, "No data provided"));
             }
-            
-            const { festName, organisedBy, sponser, description, dateOfEvent, 
+    
+            const { festName, organisedBy, sponsor, description, dateOfEvent, 
                   bannerPicture, festImages, theme, chiefGuest, festVideo, listOfActivities } = request.body;
-            
+    
             if (!festName || !organisedBy || !description || !dateOfEvent) {
                 return next(new APIError(statusCodeUtility.BadRequest, "Missing required fields"));
             }
-            
+    
+            // Correcting the way to access the uploaded files
+            const bannerUrl = request.files["bannerPicture"]
+                ? request.files["bannerPicture"][0].path
+                : null;
+    
+            const festImageUrl = request.files["festImages"]
+                ? request.files["festImages"].map((file) => file.path) // Corrected this line
+                : [];
+    
             const data = {
                 festName,
                 organisedBy,
-                sponser,
+                sponsor,
                 description,
                 dateOfEvent,
-                bannerPicture,
-                festImages,
+                bannerPicture: bannerUrl,
+                festImages: festImageUrl,
                 theme,
                 chiefGuest,
                 festVideo,

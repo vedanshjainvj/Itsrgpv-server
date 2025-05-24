@@ -48,13 +48,17 @@ class DemandController {
                 return next(new APIError(statusCodeUtility.BadRequest, "Missing required fields"));
             }
 
+            const supportAttachmentUrl = request.files["supportAttachment"]
+            ? request.files["supportAttachment"].map((file) => file.path)
+            : [];
+    
             const data = {
                 firstName,
                 lastName,
                 email,
                 year,
                 topicOfFeedback,
-                supportAttachment,
+                supportAttachment: supportAttachmentUrl,
                 rating,
                 demandTitle,
                 description,

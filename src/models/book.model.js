@@ -25,9 +25,9 @@ const bookSchema = new Schema({
         required: true
     },
 
-    thumbnailPicture: {
+    bookImg: {
         type: String,
-        required: true
+        required: false
     },
     bookUrl: {
         type: [String],

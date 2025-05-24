@@ -1,53 +1,57 @@
-import mongoose, {Schema} from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
 const pyqSchema = new Schema({
-    subjectName:{
-        type:String,
+    subjectName: {
+        type: String,
         required: true,
         minLength: 3   
     },
     
+    subjectCode: {
+        type: String,
+        required: true,
+        minLength: 2
+    },
+
     paperPublishYear: {
         type: Number,
         required: true,
-
-    },
-    semester:{
-         type: String,
-         required: true
     },
 
-    paperType:{
-        type:String,
+    semester: {
+        type: Number,
+        required: true
+    },
+
+    // ✅ Enum for paper type
+    paperType: {
+        type: String,
+        enum: ["assignment", "midsem", "endsem", "back"],  // Fixed values
         required: true,
     },
 
-    paperForYear:{
-         type: String,
-         required: true
+    paperForYear: {
+        type: Number,
+        required: true
     },
 
-    department:{
-        type:String,
-
-    },
-    questionPaperImg: [{
+    department: {
         type: String,
-        
-    }],
-
-    College: {
-        type: String,
-        enum:["UIT", "SOIT"],
         required: true,
     },
-    department:{
-        type: String,
-        required: true, 
+
+    questionPaperImg: {
+        type : String,
     },
-    
-}, {timestamps:true})
 
-const pyqModel = mongoose.model("Pyq", pyqSchema)
+    college: {
+        type: String,
+        enum: ["UIT", "SOIT"],  // Valid values for College
+        required: true,
+    },
 
-export default pyqModel
+}, { timestamps: true });
+
+const pyqModel = mongoose.model("Pyq", pyqSchema);
+
+export default pyqModel;

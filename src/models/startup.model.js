@@ -21,8 +21,7 @@ const startupSchema = new Schema({
         
     },
     dateOfEshtablishment: {
-        type: Date,
-        required: true
+        type: Date
     },
     
     startupLogo:{

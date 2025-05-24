@@ -21,8 +21,7 @@ const hostelSchema = new Schema({
 
     },
     hostelPictures: [{
-        type: Date,
-        required: true
+        type: String
     }],
 
     hostelEvents:[{
@@ -34,20 +33,21 @@ const hostelSchema = new Schema({
         
     }],
     hostelRating: {
-        type: String,
-        enum:["1", "2", "3", "4", "5"]
+        type: Number,
+        enum:[1,2,3,4,5]
     },
-    hostelWardenContactNumber:{
-        type: String,
-        required: true, 
-    },
+    hostelWardenContactNumber:[{
+        type: Number,
+        maxlength: 10,
+        unique: true
+    }],
     roomsInHostel: {
         type:Number,
         required: true
     },
     messRating: {
         type: Number,
-        enum:["1", "2", "3", "4", "5"]
+        enum:[1,2,3,4,5]
     },
     hostelFeesPerSemester: {
         type: Number

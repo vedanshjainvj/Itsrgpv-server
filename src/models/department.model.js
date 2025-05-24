@@ -21,7 +21,7 @@ const departmentSchema = new Schema({
         required: true,
         
     },
-    yearOfEshtalishment: {
+    yearOfEstablishment: {
         type: Number,
         required: true
     },
@@ -36,11 +36,10 @@ const departmentSchema = new Schema({
     }],
     contactPhone: {
         type: Number,
-        required: true,
-        unique: true
+        required: true
     }
 }, {timestamps:true})
 
 const departmentModel = mongoose.model("Department", departmentSchema)
 
-export default departmentModel
+export default departmentModel;

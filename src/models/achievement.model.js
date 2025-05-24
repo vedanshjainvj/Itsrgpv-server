@@ -30,6 +30,9 @@ const achievementSchema = new Schema({
         type: String,
         required: true,
     },
+    department: {  // Added department field as per the controller
+        type: String,
+    },
     achievementTitle: {
         type: String,
         required: true
@@ -38,15 +41,15 @@ const achievementSchema = new Schema({
         type: Number,
         required: true
     },
-    achievementDescription: {
-        type: String
+    achievementDescription: {   // Keep optional as in the controller
+        type: String,
     },
-    recognitionLevel: [{
+    recognitionLevel: [{  // Made optional
         type: String,
         enum: ["gold level", "silver level", "bronze level"]
     }],
     awards: {
-        type: String
+        type: String,
     },
     photos: {
         type: String
@@ -57,8 +60,8 @@ const achievementSchema = new Schema({
         }
     ]
 
-}, { timestamps: true })
+}, { timestamps: true });
 
-const achievementModel = new mongoose.model("Achievement", achievementSchema)
+const achievementModel = new mongoose.model("Achievement", achievementSchema);
 
-export default achievementModel
+export default achievementModel;

@@ -2,6 +2,7 @@ import ResponseHandler from "./APIResponse.js";
 import statusCodeUtility from "./statusCodeUtility.js";
 
 function Errorhandler(error, request, response, next){
+    console.log(error);
     const statusCode = error.statuscode || statusCodeUtility.InternalServerError;
     const message = error.message || "Internal Server Error"
 

@@ -34,15 +34,17 @@ const clubSchema = new mongoose.Schema({
     },
     contactPhone: [{
         type: Number,
-        maxLength: 10,
+        maxlength: 10,
         unique: true
-        
     }],
     socialLinks:[ {
         type: String,
     }],
-    logoCoverImg:{
+    logoImg:{
         type: String,
+    },
+    coverImg:{
+        type:String,
     }
     
 }, {timestamps:true})

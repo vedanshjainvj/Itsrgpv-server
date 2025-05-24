@@ -9,7 +9,7 @@ class DepartmentController {
         try {
             const page = parseInt(request.query.page) || 1;
             const limit = parseInt(request.query.limit) || 10;
-            
+
             const Departments = await departmentServices.getAllDepartments(page, limit);
             if (!Departments) {
                 return next(new APIError(statusCodeUtility.NotFound, "No Departments found"));
@@ -41,23 +41,27 @@ class DepartmentController {
             if (!request.body) {
                 return next(new APIError(statusCodeUtility.BadRequest, "No data provided"));
             }
-            const { departmentName, descriptionOfDepartment, headOfDepartment, totalSeats, 
-                    yearOfEshtalishment, contactEmail, departmentImages, contactPhone } = request.body;
+            const { departmentName, descriptionOfDepartment, headOfDepartment, totalSeats,
+                yearOfEstablishment, contactEmail, departmentImages, contactPhone } = request.body;
 
-            if (!departmentName || !descriptionOfDepartment || !headOfDepartment || 
-                !totalSeats || !yearOfEshtalishment || !contactPhone) {
+            if (!departmentName || !descriptionOfDepartment || !headOfDepartment ||
+                !totalSeats || !yearOfEstablishment || !contactPhone) {
                 return next(new APIError(statusCodeUtility.BadRequest, "Missing required fields"));
             }
+
+            // Get image URLs from Cloudinary
+            const images = request.files.map((file) => file.path);
+            console.log("Uploaded Images:", images);
 
             const data = {
                 departmentName,
                 descriptionOfDepartment,
                 headOfDepartment,
-                totalSeats,
-                yearOfEshtalishment,
+                totalSeats : Number(totalSeats),
+                yearOfEstablishment : Number(yearOfEstablishment),
                 contactEmail,
-                departmentImages,
-                contactPhone
+                departmentImages: images,
+                contactPhone: Number(contactPhone)
             };
 
             const newDepartment = await departmentServices.createDepartment(data);
@@ -75,31 +79,31 @@ class DepartmentController {
             if (!request.body) {
                 return next(new APIError(statusCodeUtility.BadRequest, "No data provided"));
             }
-            
+
             const { id } = request.params;
             if (!id) {
                 return next(new APIError(statusCodeUtility.BadRequest, "Department ID is required"));
             }
-            
-            const validFields = ["departmentName", "descriptionOfDepartment", "headOfDepartment", 
-                                "totalSeats", "yearOfEshtalishment", "contactEmail", 
-                                "departmentImages", "contactPhone"];
-                               
+
+            const validFields = ["departmentName", "descriptionOfDepartment", "headOfDepartment",
+                "totalSeats", "yearOfEstablishment", "contactEmail",
+                "departmentImages", "contactPhone"];
+
             const updateData = Object.keys(request.body).reduce((acc, key) => {
                 if (validFields.includes(key)) acc[key] = request.body[key];
                 return acc;
             }, {});
-            
+
             if (Object.keys(updateData).length === 0) {
                 return next(new APIError(statusCodeUtility.BadRequest, "No valid fields to update"));
             }
-            
+
             const updatedDepartment = await departmentServices.editDepartment(id, updateData);
-            
+
             if (!updatedDepartment) {
                 return next(new APIError(statusCodeUtility.NotFound, "Department not found"));
             }
-            
+
             return ResponseHandler(statusCodeUtility.Success, "Department updated", updatedDepartment, response);
         } catch (error) {
             next(error);

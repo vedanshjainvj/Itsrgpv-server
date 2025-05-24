@@ -11,9 +11,8 @@ const festSchema = new Schema({
         required: true,
         
     },
-    sponser:{
+    sponsor:{
         type:String,
-        
     },
     description: {
         type: String,
@@ -22,7 +21,6 @@ const festSchema = new Schema({
     },
     dateOfEvent: {
         type: Date,
-        required: true
     },
 
     bannerPicture:{
@@ -42,7 +40,7 @@ const festSchema = new Schema({
     },
     festVideo: {
         type:String,
-        
+        default : "https://youtu.be/T1b6zmqLydA?feature=shared"
     },
     listOfActivities: [{
         type:String

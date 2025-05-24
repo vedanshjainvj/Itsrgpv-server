@@ -47,9 +47,14 @@ class StartupController {
             const { startupName, slogan, description, startupCategory, dateOfEshtablishment, 
                    startupLogo, founder, contactEmail, contactPhone, socialLinks, offilneLocation } = request.body;
             
-            if (!startupName || !description || !startupCategory || !dateOfEshtablishment || 
+            if (!startupName || !description || !startupCategory || 
                 !contactEmail || !contactPhone) {
                 return next(new APIError(statusCodeUtility.BadRequest, "Missing required fields"));
+            }
+
+            let startupLogoUrl = null;
+            if(request.file) {
+                startupLogoUrl = request.file.path;
             }
             
             const data = {
@@ -58,7 +63,7 @@ class StartupController {
                 description,
                 startupCategory,
                 dateOfEshtablishment,
-                startupLogo,
+                startupLogo : startupLogoUrl,
                 founder,
                 contactEmail,
                 contactPhone,

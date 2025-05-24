@@ -8,7 +8,7 @@ class ScholarshipController {
     async getScholarships(request, response, next) {
         try {
             const page = parseInt(request.query.page) || 1;
-            const limit = parseInt(request.query.limit) || 10;
+            const limit = parseInt(request.query.limit) || 20;
             
             const Scholarships = await scholarshipServices.getAllScholarships(page, limit);
             if (!Scholarships) {

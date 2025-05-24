@@ -42,23 +42,29 @@ class PyqController {
                 return next(new APIError(statusCodeUtility.BadRequest, "No data provided"));
             }
             
-            const { subjectName, paperPublishYear, semester, paperType, 
-                   paperForYear, department, questionPaperImg, College } = request.body;
+            const { subjectName, subjectCode, paperPublishYear, semester, paperType, 
+                   paperForYear, department, questionPaperImg, college } = request.body;
             
-            if (!subjectName || !paperPublishYear || !semester || !paperType || 
-                !paperForYear || !department || !College) {
+            if (!subjectName || !subjectCode|| !paperPublishYear || !semester || !paperType || 
+                !paperForYear || !department || !college) {
                 return next(new APIError(statusCodeUtility.BadRequest, "Missing required fields"));
+            }
+
+            let questionPaperUrl = null;
+            if (request.file) {
+                questionPaperUrl = request.file.path;
             }
             
             const data = {
                 subjectName,
                 paperPublishYear,
-                semester,
+                semester : Number(semester),
                 paperType,
                 paperForYear,
                 department,
-                questionPaperImg,
-                College
+                questionPaperImg : questionPaperUrl,
+                college,
+                subjectCode
             };
             
             const newPyq = await pyqServices.createPyq(data);
