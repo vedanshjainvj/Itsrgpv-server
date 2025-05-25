@@ -11,7 +11,7 @@ router.get("/get-book/:id", asyncHandler(bookController.getBookById));
 
 router.post("/add-book", upload.single('bookImg') , asyncHandler(bookController.addBook));
 
-router.put("/edit-book/:id", asyncHandler(bookController.editBook));
+router.put("/edit-book/:id",upload.single('bookImg'), asyncHandler(bookController.editBook));
 
 router.delete("/delete-book/:id", asyncHandler(bookController.deleteBook));
 

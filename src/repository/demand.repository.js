@@ -11,7 +11,10 @@ class DemandRepository {
     // Get all demands
     static async getAll(page, limit) {
         const skip = (page - 1) * limit;
-        const getAllDemands = await demandModel.find().skip(skip).limit(limit);
+        const getAllDemands = await demandModel.find()
+       .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
         return getAllDemands;
     }
 

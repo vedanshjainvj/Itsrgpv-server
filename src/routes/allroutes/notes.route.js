@@ -17,7 +17,10 @@ router.post("/add-notes",
     ]),
     asyncHandler(notesController.addNotes)
 );
-router.put("/edit-notes/:id", asyncHandler(notesController.editNotes));
+router.put("/edit-notes/:id",    upload.fields([
+        { name: "thumbnailPicture", maxCount: 1 },  // Single thumbnail image
+        { name: "notesFile", maxCount: 1 }           // Single notes file (PDF/Doc)
+    ]), asyncHandler(notesController.editNotes));
 
 router.delete("/delete-notes/:id", asyncHandler(notesController.deleteNotes));
 

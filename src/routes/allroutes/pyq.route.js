@@ -13,7 +13,8 @@ router.post("/add-pyq",
     upload.single("questionPaperImg"),
     asyncHandler(pyqController.addPyq));
 
-router.put("/edit-pyq/:id", asyncHandler(pyqController.editPyq));
+router.put("/edit-pyq/:id",upload.single("questionPaperImg"),
+ asyncHandler(pyqController.editPyq));
 
 router.delete("/delete-pyq/:id", asyncHandler(pyqController.deletePyq));
 

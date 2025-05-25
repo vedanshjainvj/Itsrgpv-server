@@ -11,7 +11,7 @@ class SuggestRepository {
     // Get all suggests
     async getAll(page, limit) {
         const skip = (page - 1) * limit;
-        const getAllSuggests = await suggestModel.find().skip(skip).limit(limit);
+        const getAllSuggests = await suggestModel.find().skip(skip).limit(limit).sort({ createdAt: -1 });
         return getAllSuggests;
     }
 

@@ -1,15 +1,10 @@
 import mongoose, {Schema} from "mongoose";
 
 const userSchema = new Schema({
-    firstName:{
+    name:{
         type:String,
         required: true,
         minLength: 3   
-    },
-    lastName:{
-        type:String,
-        required: true,
-        minLength: 3
     },
     email:{
         type:String,
@@ -27,7 +22,6 @@ const userSchema = new Schema({
 
     profilePicture:{
         type:String,
-
     },
     role: [{
         type: String,

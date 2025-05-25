@@ -13,11 +13,14 @@ router.post(
     upload.fields([
         { name: "logoImg"}, 
         { name: "coverImg" }
-    ]),   // Multer middleware to handle file upload
-    asyncHandler(clubController.addClub)  // Wrap the controller with asyncHandler
+    ]),  
+    asyncHandler(clubController.addClub)  
 );
 
-router.put("/edit-club/:id", asyncHandler(clubController.editClub));
+router.put("/edit-club/:id", upload.fields([
+        { name: "logoImg"}, 
+        { name: "coverImg" }
+    ]),   asyncHandler(clubController.editClub));
 router.delete("/delete-club/:id", asyncHandler(clubController.deleteClub));
 
 export default router;

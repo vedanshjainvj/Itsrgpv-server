@@ -1,3 +1,4 @@
+import deleteSingleFile from "../configuration/cloudinary/deleteSingleFileByURL.js";
 import pyqServices from "../services/pyq.services.js";
 import APIError from "../utils/APIError.js";
 import ResponseHandler from "../utils/APIResponse.js";
@@ -6,40 +7,33 @@ import statusCodeUtility from "../utils/statusCodeUtility.js";
 class PyqController {
 
     static async getPyqs(request, response, next) {
-        try {
+      
             const page = parseInt(request.query.page) || 1;
             const limit = parseInt(request.query.limit) || 10;
             
             const Pyqs = await pyqServices.getAllPyqs(page, limit);
             if (!Pyqs) {
-                return next(new APIError(statusCodeUtility.NotFound, "No Pyqs found"));
+                throw new APIError(statusCodeUtility.NotFound, "No Pyqs found");
             }
             return ResponseHandler(statusCodeUtility.Success, "Pyqs found", Pyqs, response);
-        } catch (error) {
-            next(error);
-        }
     }
 
     static async getPyqById(request, response, next) {
-        try {
             if (!request.params || !request.params.id) {
-                return next(new APIError(statusCodeUtility.BadRequest, "PYQ ID is required"));
+                throw new APIError(statusCodeUtility.BadRequest, "PYQ ID is required");
             }
             const id = request.params.id;
             const Pyq = await pyqServices.findPyqById(id);
             if (!Pyq) {
-                return next(new APIError(statusCodeUtility.NotFound, "Pyq not found"));
+                throw new APIError(statusCodeUtility.NotFound, "Pyq not found");
             }
             return ResponseHandler(statusCodeUtility.Success, "Pyq found", Pyq, response);
-        } catch (error) {
-            next(error);
-        }
+   
     }
 
     static async addPyq(request, response, next) {
-        try {
             if (!request.body) {
-                return next(new APIError(statusCodeUtility.BadRequest, "No data provided"));
+                throw new APIError(statusCodeUtility.BadRequest, "No data provided");
             }
             
             const { subjectName, subjectCode, paperPublishYear, semester, paperType, 
@@ -47,7 +41,7 @@ class PyqController {
             
             if (!subjectName || !subjectCode|| !paperPublishYear || !semester || !paperType || 
                 !paperForYear || !department || !college) {
-                return next(new APIError(statusCodeUtility.BadRequest, "Missing required fields"));
+               throw new APIError(statusCodeUtility.BadRequest, "Missing required fields");
             }
 
             let questionPaperUrl = null;
@@ -69,63 +63,79 @@ class PyqController {
             
             const newPyq = await pyqServices.createPyq(data);
             if (!newPyq) {
-                return next(new APIError(statusCodeUtility.InternalServerError, "Pyq not added"));
+                throw new APIError(statusCodeUtility.InternalServerError, "Pyq not added");
             }
             return ResponseHandler(statusCodeUtility.Created, "Pyq added", newPyq, response);
-        } catch (error) {
-            next(error);
-        }
     }
 
     static async editPyq(request, response, next) {
-        try {
             if (!request.body) {
-                return next(new APIError(statusCodeUtility.BadRequest, "No data provided"));
+                throw new APIError(statusCodeUtility.BadRequest, "No data provided");
             }
             
             const { id } = request.params;
             if (!id) {
-                return next(new APIError(statusCodeUtility.BadRequest, "PYQ ID is required"));
+                throw new APIError(statusCodeUtility.BadRequest, "PYQ ID is required");
             }
-            
+                   const getDataById = await pyqServices.findPyqById(id);
+                    if (!getDataById) {
+                        throw new APIError(statusCodeUtility.NotFound, "Invalid pyq id...")
+                    }
             const validFields = ["subjectName", "paperPublishYear", "semester", "paperType", 
                                "paperForYear", "department", "questionPaperImg", "College"];
                                
-            const updateData = Object.keys(request.body).reduce((acc, key) => {
-                if (validFields.includes(key)) acc[key] = request.body[key];
-                return acc;
-            }, {});
+       const updateData = {};
+
+        for (const key of validFields) {
+            if (key in request.body) {
+                const newValue = request.body[key];
+                const oldValue = getDataById[key];
+
+                if (newValue !== undefined && newValue != oldValue) {
+                    updateData[key] = newValue;
+                }
+            }
+        }
+        
+             if (request.file) {
+            updateData.questionPaperImg = request.file.path;
+        }
             
             if (Object.keys(updateData).length === 0) {
-                return next(new APIError(statusCodeUtility.BadRequest, "No valid fields to update"));
+               throw new APIError(statusCodeUtility.BadRequest, "No valid fields to update");
             }
             
             const updatedPyq = await pyqServices.editPyq(id, updateData);
             
             if (!updatedPyq) {
-                return next(new APIError(statusCodeUtility.NotFound, "Pyq not found"));
+                throw new APIError(statusCodeUtility.NotFound, "Pyq not found");
             }
-            
+                   if(request.file && getDataById.questionPaperImg){
+                await deleteSingleFile(getDataById.questionPaperImg);
+                }
             return ResponseHandler(statusCodeUtility.Success, "Pyq updated", updatedPyq, response);
-        } catch (error) {
-            next(error);
-        }
+  
     }
 
     static async deletePyq(request, response, next) {
-        try {
+        
             const { id } = request.params;
             if (!id) {
-                return next(new APIError(statusCodeUtility.BadRequest, "PYQ ID is required"));
+               throw new APIError(statusCodeUtility.BadRequest, "PYQ ID is required");
             }
+                  const getDataById = await pyqServices.findPyqById(id);
+                    if (!getDataById) {
+                        throw new APIError(statusCodeUtility.NotFound, "Invalid pyq id...")
+                    }
             const deletedPyq = await pyqServices.deletePyq(id);
             if (!deletedPyq) {
-                return next(new APIError(statusCodeUtility.NotFound, "Pyq not found"));
+               throw new APIError(statusCodeUtility.NotFound, "Pyq not found");
             }
+                if(getDataById.questionPaperImg){
+                await deleteSingleFile(getDataById.questionPaperImg);
+                }
             return ResponseHandler(statusCodeUtility.Success, "Pyq deleted", deletedPyq, response);
-        } catch (error) {
-            next(error);
-        }
+    
     }
 }
 

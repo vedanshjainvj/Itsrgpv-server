@@ -1,3 +1,4 @@
+import deleteSingleFile from "../configuration/cloudinary/deleteSingleFileByURL.js";
 import demandServices from "../services/demand.services.js";
 import APIError from "../utils/APIError.js";
 import ResponseHandler from "../utils/APIResponse.js";
@@ -6,7 +7,6 @@ import statusCodeUtility from "../utils/statusCodeUtility.js";
 class DemandController {
 
     static async getDemands(request, response, next) {
-        try {
             const page = parseInt(request.query.page) || 1;
             const limit = parseInt(request.query.limit) || 10;
             
@@ -15,13 +15,9 @@ class DemandController {
                 return next(new APIError(statusCodeUtility.NotFound, "No Demands found"));
             }
             return ResponseHandler(statusCodeUtility.Success, "Demands found", Demands, response);
-        } catch (error) {
-            next(error);
-        }
     }
 
     static async getDemandById(request, response, next) {
-        try {
             if (!request.params) {
                 return next(new APIError(statusCodeUtility.NotFound, "No Demands found"));
             }
@@ -31,21 +27,17 @@ class DemandController {
                 return next(new APIError(statusCodeUtility.NotFound, "Demand not found"));
             }
             return ResponseHandler(statusCodeUtility.Success, "Demand found", Demand, response);
-        } catch (error) {
-            next(error);
-        }
     }
 
     static async addDemand(request, response, next) {
-        try {
             if (!request.body) {
-                return next(new APIError(statusCodeUtility.BadRequest, "No data provided"));
+                throw new APIError(statusCodeUtility.BadRequest, "No data provided");
             }
             const { firstName, lastName, email, year, topicOfFeedback, 
-                    supportAttachment, rating, demandTitle, description,progessCount } = request.body;
+                     rating, demandTitle, description,progessCount } = request.body;
             
             if (!firstName || !lastName || !email || !year || !topicOfFeedback || !description) {
-                return next(new APIError(statusCodeUtility.BadRequest, "Missing required fields"));
+                throw new APIError(statusCodeUtility.BadRequest, "Missing required fields");
             }
 
             const supportAttachmentUrl = request.files["supportAttachment"]
@@ -67,63 +59,84 @@ class DemandController {
 
             const newDemand = await demandServices.createDemand(data);
             if (!newDemand) {
-                return next(new APIError(statusCodeUtility.InternalServerError, "Demand not added"));
+                throw new APIError(statusCodeUtility.InternalServerError, "Demand not added");
             }
             return ResponseHandler(statusCodeUtility.Created, "Demand added", newDemand, response);
-        } catch (error) {
-            next(error);
-        }
+
     }
 
     static async editDemand(request, response, next) {
-        try {
+     
             if (!request.body) {
-                return next(new APIError(statusCodeUtility.BadRequest, "No data provided"));
+                throw new APIError(statusCodeUtility.BadRequest, "No data provided");
             }
             
             const { id } = request.params;
             if (!id) {
-                return next(new APIError(statusCodeUtility.BadRequest, "Demand ID is required"));
+                throw new APIError(statusCodeUtility.BadRequest, "Demand ID is required");
             }
-            
+                   const getDataById = await demandServices.findDemandById(id);
+            if(!getDataById){
+              throw new APIError(statusCodeUtility.NotFound,"Invalid demands id...")
+             }
             const validFields = ["firstName", "lastName", "email", "year", "topicOfFeedback", 
                                "supportAttachment", "rating", "demandTitle", "description"];
                                
-            const updateData = Object.keys(request.body).reduce((acc, key) => {
-                if (validFields.includes(key)) acc[key] = request.body[key];
-                return acc;
-            }, {});
+                       const updateData = {};
+
+            for (const key of validFields) {
+                if (key in request.body) {
+                    const newValue = request.body[key];
+                    const oldValue = getDataById[key];
+
+                    if (newValue !== undefined && newValue != oldValue) {
+                        updateData[key] = newValue;
+                    }
+                }
+            }
+
+                   if(request.files){
+             const existingImages = getDataById.supportAttachment || []; 
+             const newImagePaths = request.files["supportAttachment"].map((file) => file.path)
+             updateData.supportAttachment = [...existingImages, ...newImagePaths]; 
+         }
             
             if (Object.keys(updateData).length === 0) {
-                return next(new APIError(statusCodeUtility.BadRequest, "No valid fields to update"));
+                throw new APIError(statusCodeUtility.BadRequest, "No valid fields to update");
             }
             
             const updatedDemand = await demandServices.editDemand(id, updateData);
             
             if (!updatedDemand) {
-                return next(new APIError(statusCodeUtility.NotFound, "Demand not found"));
+                throw new APIError(statusCodeUtility.NotFound, "Demand not found");
             }
             
             return ResponseHandler(statusCodeUtility.Success, "Demand updated", updatedDemand, response);
-        } catch (error) {
-            next(error);
-        }
+     
     }
 
     static async deleteDemand(request, response, next) {
-        try {
+        
             const { id } = request.params;
             if (!id) {
-                return next(new APIError(statusCodeUtility.BadRequest, "Demand ID is required"));
+                throw new APIError(statusCodeUtility.BadRequest, "Demand ID is required");
+            }
+                             const getDataById = await demandServices.findDemandById(id);
+            if(!getDataById){
+              throw new APIError(statusCodeUtility.NotFound,"Invalid demands id...")
             }
             const deletedDemand = await demandServices.deleteDemand(id);
             if (!deletedDemand) {
-                return next(new APIError(statusCodeUtility.NotFound, "Demand not found"));
+                throw new APIError(statusCodeUtility.NotFound, "Demand not found");
             }
+            
+               if (getDataById.supportAttachment && getDataById.supportAttachment.length > 0) {
+    for (const url of getDataById.supportAttachment) {
+        await deleteSingleFile(url);
+    }
+}
+
             return ResponseHandler(statusCodeUtility.Success, "Demand deleted", deletedDemand, response);
-        } catch (error) {
-            next(error);
-        }
     }
 }
 

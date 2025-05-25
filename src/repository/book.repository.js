@@ -10,7 +10,9 @@ class BookRepository{
      //get all Book
     static  async getAll(page,limit) {
         const skip = (page-1)* limit;
-          const getAllBook = await bookModel.find().skip(skip);
+          const getAllBook = await bookModel.find().sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
            return getAllBook;
      }
 
@@ -23,7 +25,8 @@ class BookRepository{
      //update Book
     static  async edit(id,updateData) {
                const updatedBook = await bookModel.findByIdAndUpdate(
-                 id,updateData,
+                 id,
+                  { $set: updateData },
                  { new: true, runValidators: true }
                );
            return updatedBook;

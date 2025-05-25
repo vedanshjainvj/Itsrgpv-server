@@ -11,7 +11,7 @@ class HostelRepository {
     // Get all hostels
     static async getAll(page, limit) {
         const skip = (page - 1) * limit;
-        const getAllHostels = await hostelModel.find().skip(skip).limit(limit);
+        const getAllHostels = await hostelModel.find().skip(skip).limit(limit).sort({ createdAt: -1 });
         return getAllHostels;
     }
 

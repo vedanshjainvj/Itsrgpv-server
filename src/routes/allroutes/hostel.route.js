@@ -12,7 +12,7 @@ router.post("/add-hostel",
     upload.array("hostelPictures", 10),
      asyncHandler(hostelController.addHostel));
 
-router.put("/edit-hostel/:id", asyncHandler(hostelController.editHostel));
+router.put("/edit-hostel/:id",upload.array("hostelPictures", 10), asyncHandler(hostelController.editHostel));
 router.delete("/delete-hostel/:id", asyncHandler(hostelController.deleteHostel));
 
 export default router;

@@ -12,7 +12,7 @@ router.get("/get-startup/:id", asyncHandler(startupController.getStartupById));
 
 router.post("/add-startup",upload.single('startupLogo'), asyncHandler(startupController.addStartup));
 
-router.put("/edit-startup/:id", asyncHandler(startupController.editStartup));
+router.put("/edit-startup/:id",upload.single('startupLogo'), asyncHandler(startupController.editStartup));
 
 router.delete("/delete-startup/:id", asyncHandler(startupController.deleteStartup));
 

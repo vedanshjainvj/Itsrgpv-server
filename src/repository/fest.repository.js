@@ -11,7 +11,7 @@ class FestRepository {
     // Get all fests
     static async getAll(page, limit) {
         const skip = (page - 1) * limit;
-        const getAllFests = await festModel.find().skip(skip).limit(limit);
+        const getAllFests = await festModel.find().skip(skip).limit(limit).sort({ createdAt: -1 })
         return getAllFests;
     }
 

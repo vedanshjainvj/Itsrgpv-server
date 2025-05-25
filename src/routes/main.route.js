@@ -14,8 +14,7 @@ import ScholarshipRouter from "./allroutes/scholarship.route.js";
 import StartupRouter from "./allroutes/startup.route.js";
 import SuggestRouter from "./allroutes/suggest.route.js";
 import UserRouter from "./allroutes/user.route.js";
-import VideoRouter from "./allroutes/video.route.js";
-import RoleRouter from "./allroutes/roles.route.js";
+
 
 const router = express.Router();
 router.get("/testing", (request, response) => {
@@ -37,7 +36,5 @@ router.use("/scholarship", ScholarshipRouter);
 router.use("/startup", StartupRouter);
 router.use("/suggest", SuggestRouter);
 router.use("/user", UserRouter);
-router.use('/video', VideoRouter);
-router.use('/roles', RoleRouter);
 
 export default router;

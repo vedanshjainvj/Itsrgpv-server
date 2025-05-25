@@ -12,7 +12,8 @@ router.post("/add-placement",
     upload.single("profilePicture"),
     asyncHandler(placementController.addPlacement));
 
-router.put("/edit-placement/:id", asyncHandler(placementController.editPlacement));
+router.put("/edit-placement/:id",    upload.single("profilePicture"),
+ asyncHandler(placementController.editPlacement));
 
 router.delete("/delete-placement/:id", asyncHandler(placementController.deletePlacement));
 

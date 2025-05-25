@@ -11,7 +11,7 @@ class UserRepository {
     // Get all users
     async getAll(page, limit) {
         const skip = (page - 1) * limit;
-        const getAllUsers = await userModel.find().skip(skip).limit(limit);
+        const getAllUsers = await userModel.find().skip(skip).limit(limit).sort({ createdAt: -1 });
         return getAllUsers;
     }
 

@@ -1,3 +1,4 @@
+import deleteSingleFile from "../configuration/cloudinary/deleteSingleFileByURL.js";
 import eventServices from "../services/event.services.js";
 import APIError from "../utils/APIError.js";
 import ResponseHandler from "../utils/APIResponse.js";
@@ -6,47 +7,39 @@ import statusCodeUtility from "../utils/statusCodeUtility.js";
 class EventController {
 
     static async getEvents(request, response, next) {
-        try {
+       
             const page = parseInt(request.query.page) || 1;
             const limit = parseInt(request.query.limit) || 10;
 
             const Events = await eventServices.getAllEvents(page, limit);
             if (!Events) {
-                return next(new APIError(statusCodeUtility.NotFound, "No Events found"));
+                throw new APIError(statusCodeUtility.NotFound, "No Events found");
             }
             return ResponseHandler(statusCodeUtility.Success, "Events found", Events, response);
-        } catch (error) {
-            next(error);
-        }
     }
 
     static async getEventById(request, response, next) {
-        try {
             if (!request.params) {
-                return next(new APIError(statusCodeUtility.NotFound, "No Events found"));
+                throw new APIError(statusCodeUtility.NotFound, "No Events found");
             }
             const { id } = request.params;
             const Event = await eventServices.findEventById(id);
             if (!Event) {
-                return next(new APIError(statusCodeUtility.NotFound, "Event not found"));
+               throw new APIError(statusCodeUtility.NotFound, "Event not found");
             }
             return ResponseHandler(statusCodeUtility.Success, "Event found", Event, response);
-        } catch (error) {
-            next(error);
-        }
+
     }
 
     static async addEvent(request, response, next) {
-        try {
             if (!request.body) {
-                return next(new APIError(statusCodeUtility.BadRequest, "No data provided"));
+             throw new APIError(statusCodeUtility.BadRequest, "No data provided");
             }
 
-            const { eventName, description, organisedBy, venue, dateOfEvent,
-                bannerPicture, eventImages, eventType, targetAudience, tags } = request.body;
+            const { eventName, description, organisedBy, venue, dateOfEvent, eventType, targetAudience, tags } = request.body;
 
             if (!eventName || !description || !organisedBy || !venue) {
-                return next(new APIError(statusCodeUtility.BadRequest, "Missing required fields"));
+                throw new APIError(statusCodeUtility.BadRequest, "Missing required fields");
             }
 
             const bannerUrl = request.files["bannerPicture"]
@@ -69,66 +62,97 @@ class EventController {
                 targetAudience,
                 tags
             };
-
             const newEvent = await eventServices.createEvent(data);
             if (!newEvent) {
-                return next(new APIError(statusCodeUtility.InternalServerError, "Event not added"));
+               throw new APIError(statusCodeUtility.InternalServerError, "Event not added");
             }
             return ResponseHandler(statusCodeUtility.Created, "Event added", newEvent, response);
-        } catch (error) {
-            next(error);
-        }
     }
 
     static async editEvent(request, response, next) {
-        try {
+     
             if (!request.body) {
-                return next(new APIError(statusCodeUtility.BadRequest, "No data provided"));
+                throw new APIError(statusCodeUtility.BadRequest, "No data provided");
             }
 
             const { id } = request.params;
             if (!id) {
-                return next(new APIError(statusCodeUtility.BadRequest, "Event ID is required"));
+                throw new APIError(statusCodeUtility.BadRequest, "Event ID is required");
             }
-
+             const getDataById =  await eventServices.findEventById(id);
+            if(!getDataById){
+              throw new APIError(statusCodeUtility.NotFound,"Invalid event id...")
+             }
             const validFields = ["eventName", "description", "organisedBy", "venue", "dateOfEvent",
                 "bannerPicture", "eventImages", "eventType", "targetAudience", "tags"];
 
-            const updateData = Object.keys(request.body).reduce((acc, key) => {
-                if (validFields.includes(key)) acc[key] = request.body[key];
-                return acc;
-            }, {});
+                    const updateData = {};
+
+            for (const key of validFields) {
+                if (key in request.body) {
+                    const newValue = request.body[key];
+                    const oldValue = getDataById[key];
+
+                    if (newValue !== undefined && newValue != oldValue) {
+                        updateData[key] = newValue;
+                    }
+                }
+            }
+
+          if (request.files) {
+            if (request.files["bannerPicture"]) {
+                updateData.bannerPicture = request.files["bannerPicture"][0].path;
+            }
+
+     if (request.files["eventImages"]) {
+    const existingImages = getDataById.eventImages || []; 
+    const newImagePaths = request.files["eventImages"].map(file => file.path);
+    updateData.eventImages = [...existingImages, ...newImagePaths]; 
+}
+        }
+            
 
             if (Object.keys(updateData).length === 0) {
-                return next(new APIError(statusCodeUtility.BadRequest, "No valid fields to update"));
+              throw new APIError(statusCodeUtility.BadRequest, "No valid fields to update");
             }
 
             const updatedEvent = await eventServices.editEvent(id, updateData);
 
             if (!updatedEvent) {
-                return next(new APIError(statusCodeUtility.NotFound, "Event not found"));
+                throw new APIError(statusCodeUtility.NotFound, "Event not found");
             }
-
-            return ResponseHandler(statusCodeUtility.Success, "Event updated", updatedEvent, response);
-        } catch (error) {
-            next(error);
+        if (request.files&& request.files["eventImages"] &&getDataById.bannerPicture) {
+            const url = getDataById.bannerPicture;
+            await deleteSingleFile(url);
         }
+            return ResponseHandler(statusCodeUtility.Success, "Event updated", updatedEvent, response);
+   
     }
 
     static async deleteEvent(request, response, next) {
-        try {
             const { id } = request.params;
             if (!id) {
-                return next(new APIError(statusCodeUtility.BadRequest, "Event ID is required"));
+               throw new APIError(statusCodeUtility.BadRequest, "Event ID is required");
             }
+            if(!getDataById){
+              throw new APIError(statusCodeUtility.NotFound,"Invalid event id...")
+             }
             const deletedEvent = await eventServices.deleteEvent(id);
             if (!deletedEvent) {
-                return next(new APIError(statusCodeUtility.NotFound, "Event not found"));
+               throw new APIError(statusCodeUtility.NotFound, "Event not found");
             }
-            return ResponseHandler(statusCodeUtility.Success, "Event deleted", deletedEvent, response);
-        } catch (error) {
-            next(error);
+                   if (getDataById.bannerPicture) {
+            const url = getDataById.bannerPicture;
+            await deleteSingleFile(url);
         }
+    if (getDataById.eventImages && getDataById.eventImages.length > 0) {
+    for (const url of getDataById.eventImages) {
+        await deleteSingleFile(url);
+    }
+}
+
+            return ResponseHandler(statusCodeUtility.Success, "Event deleted", deletedEvent, response);
+   
     }
 }
 

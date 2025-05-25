@@ -6,43 +6,35 @@ import statusCodeUtility from "../utils/statusCodeUtility.js";
 class SuggestController {
 
     async getSuggests(request, response, next) {
-        try {
             const page = parseInt(request.query.page) || 1;
             const limit = parseInt(request.query.limit) || 10;
             
             const Suggests = await suggestServices.getAllSuggests(page, limit);
             if (!Suggests) {
-                return next(new APIError(statusCodeUtility.NotFound, "No Suggests found"));
+                throw new APIError(statusCodeUtility.NotFound, "No Suggests found");
             }
             return ResponseHandler(statusCodeUtility.Success, "Suggests found", Suggests, response);
-        } catch (error) {
-            next(error);
-        }
     }
 
     async getSuggestById(request, response, next) {
-        try {
             if (!request.params || !request.params.id) {
-                return next(new APIError(statusCodeUtility.BadRequest, "Suggest ID is required"));
+               throw new APIError(statusCodeUtility.BadRequest, "Suggest ID is required");
             }
             
             const id = request.params.id;
             const Suggest = await suggestServices.findSuggestById(id);
             
             if (!Suggest) {
-                return next(new APIError(statusCodeUtility.NotFound, "Suggest not found"));
+                throw new APIError(statusCodeUtility.NotFound, "Suggest not found");
             }
             
             return ResponseHandler(statusCodeUtility.Success, "Suggest found", Suggest, response);
-        } catch (error) {
-            next(error);
-        }
     }
 
     async addSuggest(request, response, next) {
-        try {
+  
             if (!request.body) {
-                return next(new APIError(statusCodeUtility.BadRequest, "No data provided"));
+                throw new APIError(statusCodeUtility.BadRequest, "No data provided");
             }
             
             const { firstName, lastName, email, contactNumber, branch, topicOfFeedback, 
@@ -51,7 +43,7 @@ class SuggestController {
             
             if (!firstName || !lastName || !email || !contactNumber || 
                 !branch || !enrollmentNumber || !passoutYear || !semester) {
-                return next(new APIError(statusCodeUtility.BadRequest, "Missing required fields"));
+                throw new APIError(statusCodeUtility.BadRequest, "Missing required fields");
             }
             
             const data = {
@@ -71,26 +63,27 @@ class SuggestController {
             const newSuggest = await suggestServices.createSuggest(data);
             
             if (!newSuggest) {
-                return next(new APIError(statusCodeUtility.InternalServerError, "Suggest not added"));
+               throw new APIError(statusCodeUtility.InternalServerError, "Suggest not added");
             }
             
             return ResponseHandler(statusCodeUtility.Created, "Suggest added", newSuggest, response);
-        } catch (error) {
-            next(error);
-        }
     }
 
     async editSuggest(request, response, next) {
-        try {
+      
             if (!request.body) {
-                return next(new APIError(statusCodeUtility.BadRequest, "No data provided"));
+                throw new APIError(statusCodeUtility.BadRequest, "No data provided");
             }
             
             const { id } = request.params;
             if (!id) {
-                return next(new APIError(statusCodeUtility.BadRequest, "Suggest ID is required"));
+                throw new APIError(statusCodeUtility.BadRequest, "Suggest ID is required");
             }
+                    const getDataById = await suggestServices.findSuggestById(id);
             
+                                            if (!getDataById) {
+                                                throw new APIError(statusCodeUtility.NotFound, "Invalid placement id...")
+                                            }
             const validFields = ["firstName", "lastName", "email", "contactNumber", "branch", 
                                "topicOfFeedback", "supportingAttchment", "enrollmentNumber", 
                                "descriptionOfFeedback", "passoutYear", "semester"];
@@ -101,23 +94,20 @@ class SuggestController {
             }, {});
             
             if (Object.keys(updateData).length === 0) {
-                return next(new APIError(statusCodeUtility.BadRequest, "No valid fields to update"));
+                throw new APIError(statusCodeUtility.BadRequest, "No valid fields to update");
             }
             
             const updatedSuggest = await suggestServices.editSuggest(id, updateData);
             
             if (!updatedSuggest) {
-                return next(new APIError(statusCodeUtility.NotFound, "Suggest not found"));
+                throw new APIError(statusCodeUtility.NotFound, "Suggest not found");
             }
             
             return ResponseHandler(statusCodeUtility.Success, "Suggest updated", updatedSuggest, response);
-        } catch (error) {
-            next(error);
-        }
     }
 
     async deleteSuggest(request, response, next) {
-        try {
+    
             const { id } = request.params;
             if (!id) {
                 return next(new APIError(statusCodeUtility.BadRequest, "Suggest ID is required"));
@@ -130,9 +120,6 @@ class SuggestController {
             }
             
             return ResponseHandler(statusCodeUtility.Success, "Suggest deleted", deletedSuggest, response);
-        } catch (error) {
-            next(error);
-        }
     }
 }
 

@@ -29,7 +29,11 @@ export const corsOptions = {
 export const envProvider = {
     PORT: process.env.PORT,
     DB_URI: process.env.DBURI,
-    NodeEnvironment:process.env.NODE_ENV
+    NodeEnvironment:process.env.NODE_ENV,
+    CloudName: process.env.CLOUDINARY_CLOUD_NAME,
+    CloudApiKey:process.env.CLOUDINARY_API_KEY,
+    CloudApiSecret: process.env.CLOUDINARY_API_SECRET,
+
 }
 
 

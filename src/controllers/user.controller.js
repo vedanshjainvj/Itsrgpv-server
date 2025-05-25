@@ -5,46 +5,38 @@ import statusCodeUtility from "../utils/statusCodeUtility.js";
 
 class UserController {
   async getUsers(request, response, next) {
-      try {
         const page = parseInt(request.query.page) || 1;
         const limit = parseInt(request.query.limit) || 10;
         
         const Users = await userServices.getAllUsers(page, limit);
         if (!Users) {
-          return next(new APIError(statusCodeUtility.NotFound, "No Users found"));
+         throw new APIError(statusCodeUtility.NotFound, "No Users found");
         }
         return ResponseHandler(statusCodeUtility.Success, "Users found", Users, response);
-      } catch (error) {
-        next(error);
-      }
   }
 
   async getUserById(request, response, next) {
-    try {
+  
       if (!request.params || !request.params.id) {
-        return next(new APIError(statusCodeUtility.BadRequest, "User ID is required"));
+        throw new APIError(statusCodeUtility.BadRequest, "User ID is required");
       }
       
       const id = request.params.id;
       const User = await userServices.findUserById(id);
       
       if (!User) {
-        return next(new APIError(statusCodeUtility.NotFound, "User not found"));
+        throw new APIError(statusCodeUtility.NotFound, "User not found");
       }
       
       return ResponseHandler(statusCodeUtility.Success, "User found", User, response);
-    } catch (error) {
-      next(error);
-    }
   }
 
   async addUser(request, response, next) {
-    try {
       if (!request.body) {
         return next(new APIError(statusCodeUtility.BadRequest, "No data provided"));
       }
       
-      const { firstName, lastName, email, contactNumber, dateOfBirth, 
+      const { name, email, contactNumber, dateOfBirth, 
              profilePicture, role, enrollmentNumber, department, 
              passoutYear, semester } = request.body;
       
@@ -54,8 +46,7 @@ class UserController {
       }
       
       const data = {
-        firstName,
-        lastName,
+        name,
         email,
         contactNumber,
         dateOfBirth,
@@ -70,17 +61,13 @@ class UserController {
       const newUser = await userServices.createUser(data);
       
       if (!newUser) {
-        return next(new APIError(statusCodeUtility.InternalServerError, "User not added"));
+        throw new APIError(statusCodeUtility.InternalServerError, "User not added");
       }
       
       return ResponseHandler(statusCodeUtility.Created, "User added", newUser, response);
-    } catch (error) {
-      next(error);
-    }
   }
 
   async editUser(request, response, next) {
-    try {
       if (!request.body) {
         return next(new APIError(statusCodeUtility.BadRequest, "No data provided"));
       }
@@ -110,9 +97,7 @@ class UserController {
       }
       
       return ResponseHandler(statusCodeUtility.Success, "User updated", updatedUser, response);
-    } catch (error) {
-      next(error);
-    }
+
   }
 
   async deleteUser(request, response, next) {

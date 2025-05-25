@@ -11,7 +11,7 @@ class PyqRepository {
     // Get all pyqs
     static async getAll(page, limit) {
         const skip = (page - 1) * limit;
-        const getAllPyqs = await pyqModel.find().skip(skip).limit(limit);
+        const getAllPyqs = await pyqModel.find().skip(skip).limit(limit).sort({ createdAt: -1 });
         return getAllPyqs;
     }
 

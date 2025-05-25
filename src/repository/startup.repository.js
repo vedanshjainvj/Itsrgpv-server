@@ -11,7 +11,7 @@ class StartupRepository {
     // Get all startups
     async getAll(page, limit) {
         const skip = (page - 1) * limit;
-        const getAllStartups = await startupModel.find().skip(skip).limit(limit);
+        const getAllStartups = await startupModel.find().skip(skip).limit(limit).sort({ createdAt: -1 });
         return getAllStartups;
     }
 

@@ -12,7 +12,7 @@ class NotesRepository {
     // Get all notes
     static async getAll(page, limit) {
         const skip = (page - 1) * limit;
-        const getAllNotes = await notesModel.find().skip(skip).limit(limit);
+        const getAllNotes = await notesModel.find().skip(skip).limit(limit).sort({ createdAt: -1 })
         return getAllNotes;
     }
 

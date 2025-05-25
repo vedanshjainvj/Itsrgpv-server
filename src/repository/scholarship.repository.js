@@ -11,7 +11,7 @@ class ScholarshipRepository {
     // Get all scholarships
     async getAll(page, limit) {
         const skip = (page - 1) * limit;
-        const getAllScholarships = await scholarshipModel.find().skip(skip).limit(limit);
+        const getAllScholarships = await scholarshipModel.find().skip(skip).limit(limit).sort({ createdAt: -1 });
         return getAllScholarships;
     }
 

@@ -20,9 +20,6 @@ const achievementSchema = new Schema({
         type: Date,
         required: true
     },
-    branch: {
-        type: String,
-    },
     fieldOfAchievement: [{
         type: String,
     }],
@@ -30,7 +27,7 @@ const achievementSchema = new Schema({
         type: String,
         required: true,
     },
-    department: {  // Added department field as per the controller
+    department: { 
         type: String,
     },
     achievementTitle: {
@@ -41,10 +38,10 @@ const achievementSchema = new Schema({
         type: Number,
         required: true
     },
-    achievementDescription: {   // Keep optional as in the controller
+    achievementDescription: {   
         type: String,
     },
-    recognitionLevel: [{  // Made optional
+    recognitionLevel: [{  
         type: String,
         enum: ["gold level", "silver level", "bronze level"]
     }],

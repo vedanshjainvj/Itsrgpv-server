@@ -16,7 +16,10 @@ router.post("/add-fest",
     ]),
     asyncHandler(festController.addFest));
 
-router.put("/edit-fest/:id", asyncHandler(festController.editFest));
+router.put("/edit-fest/:id",    upload.fields([
+        { name: "bannerPicture", maxCount: 1 },
+        { name: "festImages", maxCount: 10 },
+    ]), asyncHandler(festController.editFest));
 
 router.get("/get-fest/:id", asyncHandler(festController.getFestById));
 

@@ -9,13 +9,10 @@ class AchievementsController {
  //add Achievement
  static async addAchievement(request, response, next) {
 
-    try {
-      
       if (!request.body) return next(new APIError(statusCodeUtility.BadRequest, "No data provided"));
       const { firstName, lastName, email, achievementDate, branch, fieldOfAchievement,
         enrollmentNumber, department, achievementTitle, semester, achievementDescription,
         recognitionLevel, awards, photos, socialMediaLinks } = request.body;
-        console.log(photos)
       if (!firstName || !lastName || !email  || !enrollmentNumber ||
         !department || !achievementTitle || !semester || !achievementDate) {
         return next(new APIError(statusCodeUtility.BadRequest, "Missing required fields"));
@@ -47,9 +44,7 @@ class AchievementsController {
       if (!newAchievement) return next(new APIError(statusCodeUtility.InternalServerError, "Achievement not added"));
 
       return ResponseHandler(statusCodeUtility.Created, "Achievement added successfully", newAchievement, response);
-    } catch (error) {
-      next(error);
-    }
+
  }
 
 //get all achivements
@@ -69,6 +64,7 @@ class AchievementsController {
     return ResponseHandler(statusCodeUtility.Success, "Achievement found", Achievement, response);
   }
 
+  //edit achivement
  static async editAchievement(request, response, next) {
       if (!request.body) throw new APIError(statusCodeUtility.BadRequest, "No data provided");
 
@@ -94,7 +90,7 @@ class AchievementsController {
       if (newValue !== undefined && newValue != oldValue) {
         updateData[key] = newValue;
       }
-    }
+    } 
   }
 
   if (request.file && request.file.path) {
@@ -136,6 +132,7 @@ class AchievementsController {
       }
     return ResponseHandler(statusCodeUtility.Success, "Achievement deleted", null, response);
   }
+
 }
 
 export default AchievementsController;

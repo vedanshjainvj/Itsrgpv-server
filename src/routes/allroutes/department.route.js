@@ -13,7 +13,7 @@ router.post("/add-department",
     upload.array("departmentImages", 10),
     asyncHandler(departmentController.addDepartment)); 
 
-router.put("/edit-department/:id",asyncHandler(departmentController.editDepartment));
+router.put("/edit-department/:id", upload.array("departmentImages", 10),asyncHandler(departmentController.editDepartment));
 
 router.delete("/delete-department/:id",asyncHandler(departmentController.deleteDepartment));
 

@@ -6,10 +6,7 @@ const notesSchema = new Schema({
         required: true,
         minLength: 3,
     },
-    branch: {
-        type: String,
-        required: true,
-    },
+
     subjectCode: {
         type: String,
         required: true,
@@ -22,10 +19,6 @@ const notesSchema = new Schema({
     thumbnailPicture: {
         type: String, // Optional thumbnail URL or file path for the image
         required: false, // Marked as not required
-    },
-    year: {
-        type: Number,
-        required: false, // Make it optional if not always provided
     },
     department: {
         type: String,
@@ -52,19 +45,8 @@ const notesSchema = new Schema({
         type: [String], 
         required: false, // Hashtags are optional
     },
-    pagesNumber: {
-        type: Number,
-    },
-    fileSize: {
-        type: Number, // File size in bytes
-    },
-    uploadedOnDate: {
-        type: Date,
-        default: Date.now,
-        required: true,
-    },
     notesFile: {
-        type: String,// Mandatory field for uploading notes
+        type: String,
     }
 }, { timestamps: true });
 

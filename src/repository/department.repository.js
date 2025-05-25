@@ -11,7 +11,10 @@ class DepartmentRepository {
     // Get all departments
     static async getAll(page, limit) {
         const skip = (page - 1) * limit;
-        const getAllDepartments = await departmentModel.find().skip(skip).limit(limit);
+        const getAllDepartments = await departmentModel.find()
+       .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
         return getAllDepartments;
     }
 

@@ -1,3 +1,4 @@
+import deleteSingleFile from "../configuration/cloudinary/deleteSingleFileByURL.js";
 import BookServices from "../services/book.services.js";
 import APIError from "../utils/APIError.js";
 import ResponseHandler from "../utils/APIResponse.js";
@@ -18,7 +19,7 @@ class BookController {
 
         let bookUploadUrl = null;
         if (request.file) {
-            bookUploadUrl = request.file.path;
+            bookUploadUrl = request.file.path
         }
 
         console.log("Uploaded file details:", request.file);
@@ -69,34 +70,63 @@ class BookController {
         }
 
         const { id } = request.params;
-        const { author, description, department, semester, tags, thumbnailPicture, bookUrl, availability, publicationYear } = request.body;
-
-        const editdata =
-        {
-            author,
-            description,
-            department,
-            semester,
-            tags,
-            thumbnailPicture,
-            bookUrl,
-            availability,
-            publicationYear
+        if (!id) {
+            throw new APIError(statusCodeUtility.BadRequest, "Book ID is required");
+        }
+        const getDataById = await BookServices.findBookById(id);
+        if (!getDataById) {
+            throw new APIError(statusCodeUtility.NotFound, "Invalid book id...")
         }
 
+        const validFields = ["author", "description", "department", "semester",
+            "tags", "thumbnailPicture", "bookUrl", "availability",
+            "publicationYear"];
 
-        const editedBook = await BookServices.editBook(id, editdata);
+        const updateData = {};
+
+        for (const key of validFields) {
+            if (key in request.body) {
+                const newValue = request.body[key];
+                const oldValue = getDataById[key];
+
+                if (newValue !== undefined && newValue != oldValue) {
+                    updateData[key] = newValue;
+                }
+            }
+        }
+
+        if (request.file) {
+            updateData.thumbnailPicture = request.file.path;
+        }
+        if (Object.keys(updateData).length === 0) {
+            throw new APIError(statusCodeUtility.BadRequest, "No valid fields to update");
+        }
+
+        const editedBook = await BookServices.editBook(id, updateData);
         if (!editedBook) {
             throw new APIError(statusCodeUtility.InternalServerError, "Book not edited");
+        }
+        if (request.file && getDataById.thumbnailPicture) {
+            await deleteSingleFile(getDataById.thumbnailPicture);
         }
         return ResponseHandler(statusCodeUtility.Success, "Book edited", editedBook, response);
     }
 
     static async deleteBook(request, response, next) {
         const { id } = request.params;
+        if (!id) {
+            throw new APIError(statusCodeUtility.BadRequest, "Book ID is required");
+        }
+        const getDataById = await BookServices.findBookById(id);
+        if (!getDataById) {
+            throw new APIError(statusCodeUtility.NotFound, "Invalid book id...")
+        }
         const deletedBook = await BookServices.deleteBook(id);
         if (!deletedBook) {
             throw new APIError(statusCodeUtility.NotFound, "Book not found");
+        }
+        if (getDataById.thumbnailPicture) {
+            await deleteSingleFile(getDataById.thumbnailPicture);
         }
         return ResponseHandler(statusCodeUtility.Success, "Book deleted", deletedBook, response);
     }

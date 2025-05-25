@@ -11,7 +11,7 @@ class PlacementRepository {
     // Get all placements
     static async getAll(page, limit) {
         const skip = (page - 1) * limit;
-        const getAllPlacements = await placementModel.find().skip(skip).limit(limit);
+        const getAllPlacements = await placementModel.find().skip(skip).limit(limit).sort({ createdAt: -1 });
         return getAllPlacements;
     }
 

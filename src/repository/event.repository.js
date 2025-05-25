@@ -11,7 +11,8 @@ class EventRepository {
     // Get all events
     static async getAll(page, limit) {
         const skip = (page - 1) * limit;
-        const getAllEvents = await eventModel.find().skip(skip).limit(limit);
+        const getAllEvents = await eventModel.find() 
+        .sort({ createdAt: -1 }).skip(skip).limit(limit);
         return getAllEvents;
     }
 
