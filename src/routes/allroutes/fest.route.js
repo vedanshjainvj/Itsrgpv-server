@@ -6,7 +6,7 @@ import upload from "../../configuration/cloudinary/multer.config.js";
 
 const router = express.Router();
 
-
+router.get("/get-fest", asyncHandler(festController.getFest));
 
 router.post("/add-fest",
     upload.fields([
