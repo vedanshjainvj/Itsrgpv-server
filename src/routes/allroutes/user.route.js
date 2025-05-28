@@ -5,6 +5,7 @@ import userController from "../../controllers/user.controller.js";
 const router = express.Router();
 
 router.get("/get-user", asyncHandler(userController.getUsers));
+router.get("/get-user-by-user-id", asyncHandler(userController.getUserByUserId));
 router.get("/get-user/:id", asyncHandler(userController.getUserById));
 router.post("/add-user", asyncHandler(userController.addUser));
 router.put("/edit-user/:id", asyncHandler(userController.editUser));

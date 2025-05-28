@@ -8,6 +8,7 @@ const router = express.Router();
 
 
 
+router.get("/get-all-fest",asyncHandler(festController.getFest));
 router.post("/add-fest",
     upload.fields([
         { name: "bannerPicture", maxCount: 1 },

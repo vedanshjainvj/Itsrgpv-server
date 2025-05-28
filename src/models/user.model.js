@@ -1,13 +1,29 @@
 import mongoose, {Schema} from "mongoose";
 
 const userSchema = new Schema({
-    name:{
+    firstName:{
         type:String,
         required: true,
-        minLength: 3   
+        minLength: 2   
+    },
+    gender:{
+        type:String,
+        required: true,
+    },
+    lastName:{
+        type:String,
+        required: true,  
+    },
+    userId:{
+        type:String,
+        required: true, 
     },
     email:{
         type:String,
+        required: true,
+    },
+    year: {
+        type: String,
         required: true,
     },
     contactNumber: {
@@ -15,33 +31,49 @@ const userSchema = new Schema({
         required: true,
         maxLength: 10
     },
-    dateOfBirth: {
-        type: Date,
+    dob: {
+        type: String,
         required: true
     },
 
-    profilePicture:{
+    profilePic:{
         type:String,
     },
-    role: [{
-        type: String,
-    }],
+socialLinks: {
+    instagram: {
+      type: String,
+      default: '',
+    },
+    linkedin: {
+      type: String,
+      default: '',
+    },
+    github: {
+      type: String,
+      default: '',
+    },
+    twitter: {
+      type: String,
+      default: '',
+    },
+  },
     enrollmentNumber: {
         type: String,
         required: true,
     },
-    department:{
-        type: String,
-        required: true, 
-    },
-    passoutYear: {
-        type:Number,
-        required: true
-    },
     semester: {
-        type: Number,
+        type: String,
         required: true
     },
+    branch: {
+        type: String,
+        required: true
+    },
+    aboutUs: {
+        type: String,
+        required: true
+    },
+    skills: [],
     
 }, {timestamps:true})
 
