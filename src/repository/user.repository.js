@@ -16,6 +16,11 @@ class UserRepository {
     }
 
   // Get single user
+  async getByUserId(id) {
+    const getUser = await userModel.findOne({userId:id});
+    return getUser;
+  }
+  // Get single user
   async getById(id) {
     const getUser = await userModel.findById(id);
     return getUser;

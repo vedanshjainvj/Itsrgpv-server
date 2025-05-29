@@ -12,6 +12,11 @@ async getAllUsers(page, limit) {
     return getUsers;
 }
 
+  async findUserByUserId(id) {
+    const findData = await userRepository.getByUserId(id);
+    return findData;
+  }
+
   async findUserById(id) {
     const findData = await userRepository.getById(id);
     return findData;

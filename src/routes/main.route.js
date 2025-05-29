@@ -8,6 +8,7 @@ import express from "express";
 import FestRouter from "./allroutes/fest.route.js";
 import HostelRouter from "./allroutes/hostel.route.js";
 import NotesRouter from "./allroutes/notes.route.js";
+import PhotogalleryRouter from "./allroutes/photogallery.route.js";
 import PlacementRouter from "./allroutes/placement.route.js";
 import PyqRouter from "./allroutes/pyq.route.js";
 import ScholarshipRouter from "./allroutes/scholarship.route.js";
@@ -39,5 +40,6 @@ router.use("/startup", StartupRouter);
 router.use("/suggest", SuggestRouter);
 router.use("/user", UserRouter);
 router.use("/gallery",GalleryRouter);
+router.use("/photogallery", PhotogalleryRouter);
 
 export default router;

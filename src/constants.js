@@ -8,17 +8,19 @@ const allowedOrigins = [
     "http://localhost:5173",
     "http://localhost:5174",
     "http://localhost:3000",
+    "https://itsrgpv.vedanshjain.me",
 ];
 
 export const corsOptions = {
-    origin: function (origin, callback) {
-        if (!origin || allowedOrigins.includes(origin)) {
-            console.log(origin)
-            callback(null, true);
-        } else {
-            callback(new Error("Not allowed by CORS"));
-        }
-    },
+    // origin: function (origin, callback) {
+    //     if (!origin || allowedOrigins.includes(origin)) {
+    //         console.log(origin)
+    //         callback(null, true);
+    //     } else {
+    //         callback(new Error("Not allowed by CORS"));
+    //     }
+    // },
+    origin:"*",
     "Access-Control-Allow-Origin": "*",
     credentials: true, // Allow cookies/auth headers
     optionsSuccessStatus: 200, // Response for preflight requests
