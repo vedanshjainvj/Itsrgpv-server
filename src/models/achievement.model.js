@@ -41,10 +41,6 @@ const achievementSchema = new Schema({
     achievementDescription: {   
         type: String,
     },
-    recognitionLevel: [{  
-        type: String,
-        enum: ["gold level", "silver level", "bronze level"]
-    }],
     awards: {
         type: String,
     },
@@ -54,6 +50,11 @@ const achievementSchema = new Schema({
     socialMediaLinks: [
         {
             type: String
+        }
+    ],
+    mentor : [
+        {
+            type : String
         }
     ]
 

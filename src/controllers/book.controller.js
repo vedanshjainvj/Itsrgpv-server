@@ -25,6 +25,7 @@ class BookController {
         console.log("Uploaded file details:", request.file);
 
         const data = {
+            title,
             author,
             description,
             department,

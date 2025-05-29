@@ -37,14 +37,28 @@ const clubSchema = new mongoose.Schema({
         maxlength: 10,
         unique: true
     }],
-    socialLinks:[ {
-        type: String,
-    }],
+    linkedInLink: {
+        type : String,
+    },
+    instaLink: {
+        type : String,
+    },
+    // socialLinks:[ {
+    //     type: String,
+    // }],
     logoImg:{
         type: String,
     },
     coverImg:{
         type:String,
+    },
+    featuredTagline : [
+        {
+            type: String,
+        }
+    ],
+    clubWebsite:{
+        type: String
     }
     
 }, {timestamps:true})

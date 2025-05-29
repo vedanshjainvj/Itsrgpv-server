@@ -1,6 +1,10 @@
 import mongoose, { Schema } from "mongoose";
 
 const bookSchema = new Schema({
+    title: {
+        type : String,
+        minLength: 3
+    },
     author: {
         type: String,
         required: true,

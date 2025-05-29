@@ -14,6 +14,8 @@ import ScholarshipRouter from "./allroutes/scholarship.route.js";
 import StartupRouter from "./allroutes/startup.route.js";
 import SuggestRouter from "./allroutes/suggest.route.js";
 import UserRouter from "./allroutes/user.route.js";
+import GalleryRouter from "./allroutes/gallery.route.js"
+
 
 
 const router = express.Router();
@@ -36,5 +38,6 @@ router.use("/scholarship", ScholarshipRouter);
 router.use("/startup", StartupRouter);
 router.use("/suggest", SuggestRouter);
 router.use("/user", UserRouter);
+router.use("/gallery",GalleryRouter);
 
 export default router;

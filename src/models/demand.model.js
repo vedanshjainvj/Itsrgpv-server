@@ -36,8 +36,7 @@ const demandSchema = new Schema({
         type: String,
     },
     description: {
-        type: String,
-        required: true,
+        type: String
     },
     progressCount: {
         type: Number,

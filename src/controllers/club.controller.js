@@ -39,7 +39,7 @@ class ClubController {
         }
 
         const { clubName, founderName, description, typeOfClub, dateOfeshtablishment,
-            contactEmail, socialLinks } = request.body;
+            contactEmail, linkedInLink, instaLink, featuredTagline,clubWebsite } = request.body;
 
         if (!clubName || !founderName || !description || !typeOfClub) {
             return next(new APIError(statusCodeUtility.BadRequest, "Missing required fields"));
@@ -56,6 +56,9 @@ class ClubController {
                 coverUrl = request.files.coverImg[0].path;
             }
         }
+
+        const featuredTaglines = JSON.parse(request.body.featuredTagline);
+
         // Handle phone numbers
         const contactNumber = Array.isArray(request.body.contactPhone)
             ? request.body.contactPhone
@@ -69,9 +72,13 @@ class ClubController {
             dateOfeshtablishment,
             contactEmail,
             contactPhone: contactNumber,
-            socialLinks,
+            // socialLinks,
+            linkedInLink,
+            instaLink,
             logoImg: logoUrl,
-            coverImg: coverUrl
+            coverImg: coverUrl,
+            featuredTagline: featuredTaglines,
+            clubWebsite
         };
 
         const newClub = await clubServices.createClub(data);
@@ -100,7 +107,7 @@ class ClubController {
              }
         const validFields = ["clubName", "founderName", "description", "typeOfClub",
             "dateOfeshtablishment", "contactEmail", "contactPhone", "logoImg", "coverImg",
-            "socialLinks"];
+            "socialLinks", "linkedInLink","instaLink","featuredTagline","clubWebsite"];
         const updateData = {};
 
         for (const key of validFields) {

@@ -12,7 +12,7 @@ router.get("/get-demand/:id",asyncHandler(DemandController.getDemandById));
 router.post("/add-demand",
     upload.fields([{ name: "supportAttachment", maxCount: 5 }]),
     asyncHandler(DemandController.addDemand));
-
+       
 router.put("/edit-demand/:id", upload.fields([{ name: "supportAttachment", maxCount: 5 }]),asyncHandler(DemandController.editDemand));
 
 router.delete("/delete-demand/:id",asyncHandler(DemandController.deleteDemand));

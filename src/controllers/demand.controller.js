@@ -30,39 +30,67 @@ class DemandController {
     }
 
     static async addDemand(request, response, next) {
+        try {
             if (!request.body) {
                 throw new APIError(statusCodeUtility.BadRequest, "No data provided");
             }
-            const { firstName, lastName, email, year, topicOfFeedback, 
-                     rating, demandTitle, description,progessCount } = request.body;
-            
-            if (!firstName || !lastName || !email || !year || !topicOfFeedback || !description) {
-                throw new APIError(statusCodeUtility.BadRequest, "Missing required fields");
-            }
-
-            const supportAttachmentUrl = request.files["supportAttachment"]
-            ? request.files["supportAttachment"].map((file) => file.path)
-            : [];
     
-            const data = {
+            const {
                 firstName,
                 lastName,
                 email,
                 year,
                 topicOfFeedback,
+                rating,
+                demandTitle,
+                description,
+                progressCount,
+                hashtags,
+                demandStatus,
+                demandSubmitted,
+                submittedTo,
+                administrationResponse,
+                demandUpdates
+            } = request.body;
+    
+            // Basic validation for required fields
+            if (!firstName || !lastName || !email || !year || !topicOfFeedback || !description) {
+                throw new APIError(statusCodeUtility.BadRequest, "Missing required fields");
+            }
+    
+            // Attachments handling
+            const supportAttachmentUrl = request.files?.supportAttachment
+                ? request.files.supportAttachment.map((file) => file.path)
+                : [];
+    
+            const data = {
+                firstName: firstName.trim(),
+                lastName: lastName.trim(),
+                email: email.trim(),
+                year: parseInt(year),
+                topicOfFeedback,
                 supportAttachment: supportAttachmentUrl,
                 rating,
                 demandTitle,
                 description,
-                progessCount
+                progressCount: parseInt(progressCount) || 1, // Default to 1
+                hashtags,
+                demandStatus, // Should be one of: "approved", "denied", "pending", "unclear"
+                demandSubmitted,
+                submittedTo,
+                administrationResponse,
+                demandUpdates
             };
-
+    
             const newDemand = await demandServices.createDemand(data);
             if (!newDemand) {
                 throw new APIError(statusCodeUtility.InternalServerError, "Demand not added");
             }
+    
             return ResponseHandler(statusCodeUtility.Created, "Demand added", newDemand, response);
-
+        } catch (error) {
+            next(error);
+        }
     }
 
     static async editDemand(request, response, next) {

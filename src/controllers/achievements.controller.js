@@ -12,11 +12,13 @@ class AchievementsController {
       if (!request.body) return next(new APIError(statusCodeUtility.BadRequest, "No data provided"));
       const { firstName, lastName, email, achievementDate, branch, fieldOfAchievement,
         enrollmentNumber, department, achievementTitle, semester, achievementDescription,
-        recognitionLevel, awards, photos, socialMediaLinks } = request.body;
+        awards, photos, socialMediaLinks, mentor } = request.body;
       if (!firstName || !lastName || !email  || !enrollmentNumber ||
         !department || !achievementTitle || !semester || !achievementDate) {
         return next(new APIError(statusCodeUtility.BadRequest, "Missing required fields"));
       }
+
+      const mentorList = JSON.parse(request.body.mentor);
 
       let photoUrl = null;
         if (request.file) {
@@ -35,10 +37,10 @@ class AchievementsController {
         achievementTitle,
         semester : Number(semester),
         achievementDescription,
-        recognitionLevel,
         awards,
         photos : photoUrl,
-        socialMediaLinks
+        socialMediaLinks,
+        mentor: mentorList
       }
       const newAchievement = await achievementsServices.createAchievement(data);
       if (!newAchievement) return next(new APIError(statusCodeUtility.InternalServerError, "Achievement not added"));
