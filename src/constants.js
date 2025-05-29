@@ -20,7 +20,7 @@ export const corsOptions = {
     //         callback(new Error("Not allowed by CORS"));
     //     }
     // },
-    origin:"*"
+    origin:"*",
     "Access-Control-Allow-Origin": "*",
     credentials: true, // Allow cookies/auth headers
     optionsSuccessStatus: 200, // Response for preflight requests
